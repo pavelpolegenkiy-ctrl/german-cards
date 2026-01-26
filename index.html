@@ -1,11 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Учим Немецкий: Найди Пару</title>
+    <title>Учим Немецкий</title>
     <style>
-        /* Стили (CSS) - внешний вид */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f8ff;
@@ -14,28 +13,58 @@
             align-items: center;
             margin: 0;
             padding: 20px;
-            touch-action: manipulation; /* Улучшает отклик на планшетах */
+            touch-action: manipulation;
         }
 
         h1 {
             color: #333;
+            margin-bottom: 10px;
+            text-align: center;
         }
 
+        /* --- СТИЛИ ДЛЯ МЕНЮ --- */
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .menu-btn {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 1.3rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+            .menu-btn:active {
+                transform: scale(0.98);
+            }
+
+        /* --- СТИЛИ ДЛЯ ИГРЫ --- */
         .game-info {
             margin-bottom: 20px;
             font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 800px;
         }
 
-        /* Сетка для карточек */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             width: 100%;
             max-width: 800px;
         }
 
-        /* Стиль карточки */
         .card {
             background-color: white;
             border: 2px solid #0078d4;
@@ -46,139 +75,177 @@
             align-items: center;
             font-size: 1.2rem;
             cursor: pointer;
-            user-select: none; /* Запрет выделения текста */
-            transition: transform 0.2s, background-color 0.2s;
+            user-select: none;
+            transition: transform 0.2s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             text-align: center;
             padding: 5px;
         }
 
-            .card:active {
-                transform: scale(0.95);
-            }
-
-            /* Выбранная карточка */
             .card.selected {
                 background-color: #ffd700;
                 border-color: #ff8c00;
             }
 
-            /* Правильная пара */
             .card.matched {
-                background-color: #90ee90; /* Зеленый */
+                background-color: #90ee90;
                 border-color: #228b22;
-                visibility: hidden; /* Скрываем угаданные, или можно оставить visible */
+                visibility: hidden;
                 opacity: 0;
                 transition: opacity 0.5s;
             }
 
-        /* Кнопка перезапуска */
-        #restart-btn {
+        /* Кнопки управления */
+        .controls {
             margin-top: 30px;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            background-color: #0078d4;
+            display: flex;
+            gap: 20px;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #666;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
 
-        /* Адаптив для планшетов */
+        #restart-btn {
+            background-color: #0078d4;
+        }
+
+        /* Класс для скрытия экранов */
+        .hidden {
+            display: none !important;
+        }
+
         @media (min-width: 600px) {
             .grid-container {
-                grid-template-columns: repeat(4, 1fr); /* 4 колонки на больших экранах */
+                grid-template-columns: repeat(4, 1fr);
             }
         }
     </style>
 </head>
 <body>
 
-    <h1>Deutsch-Russisch Пары</h1>
+    <h1 id="main-title">Выберите тему</h1>
 
-    <div class="game-info">
-        Осталось пар: <span id="pairs-left">0</span>
+    <div id="menu-screen" class="menu-container">
     </div>
 
-    <div class="grid-container" id="game-board">
+    <div id="game-screen" class="hidden">
+        <div class="game-info">
+            <span>Тема: <b id="topic-name">...</b></span>
+            <span>Пар: <span id="pairs-left">0</span></span>
+        </div>
+
+        <div class="grid-container" id="game-board"></div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="showMenu()">Main Menu</button>
+            <button class="control-btn" id="restart-btn" onclick="restartCurrentGame()">Еще раз</button>
+        </div>
     </div>
 
-    <button id="restart-btn" onclick="startGame()">Новая игра</button>
+    <script src="words.js"></script>
 
     <script>
-        // --- 1. БАЗА ДАННЫХ СЛОВ ---
-        // Сюда можно добавить хоть 1000 пар.
-        const allWords = [
-            { id: 1, de: "der Hund", ru: "Собака" },
-            { id: 2, de: "die Katze", ru: "Кошка" },
-            { id: 3, de: "das Haus", ru: "Дом" },
-            { id: 4, de: "der Tisch", ru: "Стол" },
-            { id: 5, de: "das Buch", ru: "Книга" },
-            { id: 6, de: "die Schule", ru: "Школа" },
-            { id: 7, de: "der Apfel", ru: "Яблоко" },
-            { id: 8, de: "das Auto", ru: "Машина" },
-            { id: 9, de: "die Sonne", ru: "Солнце" },
-            { id: 10, de: "der Freund", ru: "Друг" },
-            { id: 11, de: "arbeiten", ru: "Работать" },
-            { id: 12, de: "lernen", ru: "Учиться" }
-        ];
-
+        // Глобальные переменные
+        let currentWords = [];     // Слова текущей темы
         let selectedCards = [];
         let pairsLeft = 0;
+        const PAIRS_ON_SCREEN = 6;
+
+        // Элементы
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const mainTitle = document.getElementById('main-title');
         const gameBoard = document.getElementById('game-board');
         const pairsLeftDisplay = document.getElementById('pairs-left');
-        const PAIRS_ON_SCREEN = 6; // Сколько пар показывать за один раз
+        const topicNameDisplay = document.getElementById('topic-name');
 
-        // --- 2. ЛОГИКА ИГРЫ ---
+        // --- 1. ЗАПУСК ПРИ ОТКРЫТИИ ---
+        // Генерируем меню на основе файла words.js
+        function initMenu() {
+            menuScreen.innerHTML = '';
+            // wordCollections берется из words.js
+            for (let topic in wordCollections) {
+                const btn = document.createElement('button');
+                btn.className = 'menu-btn';
+                btn.innerText = topic;
+                btn.onclick = () => startGame(topic);
+                menuScreen.appendChild(btn);
+            }
+        }
 
-        function startGame() {
+        // --- 2. ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ЭКРАНОВ ---
+
+        function showMenu() {
+            gameScreen.classList.add('hidden');
+            menuScreen.classList.remove('hidden');
+            mainTitle.innerText = "Выберите тему";
+            selectedCards = [];
+        }
+
+        function startGame(topicKey) {
+            // Сохраняем текущие слова в память
+            currentWords = wordCollections[topicKey];
+
+            // Меняем экран
+            menuScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            mainTitle.innerText = "Найди пару";
+            topicNameDisplay.innerText = topicKey;
+
+            // Запускаем раунд
+            startRound();
+        }
+
+        function restartCurrentGame() {
+            startRound();
+        }
+
+        // --- 3. ИГРОВАЯ ЛОГИКА (Та же, что и была) ---
+
+        function startRound() {
             gameBoard.innerHTML = '';
             selectedCards = [];
 
-            // 1. Выбираем случайные пары из большого списка
-            const randomPairs = getRandomSubarray(allWords, PAIRS_ON_SCREEN);
+            // Если слов в теме меньше, чем 6, берем сколько есть
+            const countToTake = Math.min(PAIRS_ON_SCREEN, currentWords.length);
+
+            const randomPairs = getRandomSubarray(currentWords, countToTake);
             pairsLeft = randomPairs.length;
             pairsLeftDisplay.innerText = pairsLeft;
 
-            // 2. Создаем массив карточек (отдельно для RU и DE)
             let cards = [];
             randomPairs.forEach(pair => {
-                // Немецкая карточка
-                cards.push({ id: pair.id, text: pair.de, lang: 'de' });
-                // Русская карточка
-                cards.push({ id: pair.id, text: pair.ru, lang: 'ru' });
+                cards.push({ id: pair.id, text: pair.de });
+                cards.push({ id: pair.id, text: pair.ru });
             });
 
-            // 3. Перемешиваем карточки
             cards = shuffleArray(cards);
 
-            // 4. Рисуем их на экране
             cards.forEach(cardData => {
                 const cardEl = document.createElement('div');
                 cardEl.classList.add('card');
                 cardEl.innerText = cardData.text;
-                cardEl.dataset.id = cardData.id; // Храним ID пары
-
-                // Обработчик клика
+                cardEl.dataset.id = cardData.id;
                 cardEl.addEventListener('click', () => handleCardClick(cardEl));
-
                 gameBoard.appendChild(cardEl);
             });
         }
 
         function handleCardClick(card) {
-            // Если уже угадана или выбрана, или уже выбрано 2 карты - игнорируем
             if (card.classList.contains('matched') ||
                 card.classList.contains('selected') ||
-                selectedCards.length >= 2) {
-                return;
-            }
+                selectedCards.length >= 2) return;
 
-            // Выделяем карту
             card.classList.add('selected');
             selectedCards.push(card);
 
-            // Если выбрано 2 карты - проверяем
             if (selectedCards.length === 2) {
                 checkForMatch();
             }
@@ -188,9 +255,7 @@
             const card1 = selectedCards[0];
             const card2 = selectedCards[1];
 
-            // Сравниваем ID пар
             if (card1.dataset.id === card2.dataset.id) {
-                // Совпадение!
                 setTimeout(() => {
                     card1.classList.remove('selected');
                     card2.classList.remove('selected');
@@ -198,32 +263,21 @@
                     card2.classList.add('matched');
                     pairsLeft--;
                     pairsLeftDisplay.innerText = pairsLeft;
-
-                    if (pairsLeft === 0) {
-                        alert("Отлично! Все пары найдены.");
-                    }
+                    if (pairsLeft === 0) setTimeout(() => alert("Победа!"), 300);
                 }, 300);
             } else {
-                // Ошибка
                 setTimeout(() => {
                     card1.classList.remove('selected');
                     card2.classList.remove('selected');
-                }, 1000); // Ждем 1 секунду, чтобы игрок увидел ошибку
+                }, 1000);
             }
-
-            // Очищаем выбор (с небольшой задержкой, чтобы код успел отработать)
-            setTimeout(() => {
-                selectedCards = [];
-            }, 300);
+            setTimeout(() => { selectedCards = []; }, 300);
         }
 
-        // --- 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
-
-        // Случайный выбор N элементов
+        // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
         function getRandomSubarray(arr, size) {
             const shuffled = arr.slice(0);
-            let i = arr.length;
-            let temp, index;
+            let i = arr.length, temp, index;
             while (i--) {
                 index = Math.floor(Math.random() * (i + 1));
                 temp = shuffled[index];
@@ -233,7 +287,6 @@
             return shuffled.slice(0, size);
         }
 
-        // Перемешивание массива (алгоритм Фишера-Йетса)
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -242,8 +295,8 @@
             return array;
         }
 
-        // Запуск при загрузке
-        startGame();
+        // Запускаем построение меню
+        initMenu();
 
     </script>
 </body>
