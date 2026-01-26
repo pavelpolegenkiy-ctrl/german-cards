@@ -8,7 +8,8 @@
         /* --- CSS STYLES --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f8ff;
+            /* ТЕМНО-ЗЕЛЕНЫЙ ФОН (Стол) */
+            background-color: #1b5e20;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,9 +20,10 @@
         }
 
         h1 {
-            color: #333;
+            color: #ffffff;
             margin: 10px 0;
             text-align: center;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
         }
 
         .hidden {
@@ -39,27 +41,27 @@
         }
 
         .menu-btn {
-            background-color: #0078d4;
+            background-color: #43a047;
             color: white;
-            border: none;
+            border: 2px solid #2e7d32;
             padding: 20px;
             font-size: 1.4rem;
             border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             transition: transform 0.1s;
         }
 
             .menu-btn:active {
                 transform: scale(0.98);
+                background-color: #2e7d32;
             }
 
         .back-btn {
-            background-color: #666;
-            margin-top: 20px;
+            background-color: #558b2f;
             padding: 12px 24px;
             color: white;
-            border: none;
+            border: 1px solid rgba(255,255,255,0.3);
             border-radius: 8px;
             font-size: 1.1rem;
             cursor: pointer;
@@ -68,9 +70,10 @@
         /* --- ПЕРЕКЛЮЧАТЕЛЬ СЛОЖНОСТИ --- */
         .difficulty-switch {
             display: flex;
-            background: #ddd;
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 20px;
             padding: 4px;
+            border: 1px solid rgba(255,255,255,0.2);
             margin-bottom: 20px;
             width: 300px;
         }
@@ -84,18 +87,17 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 1rem;
-            color: #555;
+            color: #a5d6a7;
             transition: background 0.2s, color 0.2s;
         }
-            /* Активная кнопка */
+
             .diff-btn.active {
-                background: #0078d4;
+                background: #4caf50;
                 color: white;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             }
 
-        /* --- ИГРОВЫЕ ЭЛЕМЕНТЫ --- */
-        /* Карточки */
+        /* --- КАРТОЧКИ (ИСПРАВЛЕНИЕ ПРОСВЕЧИВАНИЯ) --- */
         .flashcard-scene {
             width: 95%;
             max-width: 700px;
@@ -111,7 +113,8 @@
             position: relative;
             transition: transform 0.6s;
             transform-style: preserve-3d;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            /* Тень для объема */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             border-radius: 20px;
         }
 
@@ -123,6 +126,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
+            /* ГЛАВНОЕ ИСПРАВЛЕНИЕ: Скрываем "изнанку" + force hardware acceleration */
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
             display: flex;
@@ -133,6 +137,8 @@
             padding: 10px;
             box-sizing: border-box;
             text-align: center;
+            /* Гарантируем, что фон непрозрачный */
+            background-color: white;
         }
 
         #flash-text-de, #flash-text-ru {
@@ -144,17 +150,22 @@
             word-wrap: break-word;
         }
 
+        /* Лицевая (DE) */
         .flashcard-front {
             background-color: #ffffff;
-            color: #0078d4;
-            border: 6px solid #0078d4;
+            color: #1b5e20;
+            border: 6px solid #43a047;
+            z-index: 2; /* Явно поверх задней части */
+            transform: rotateY(0deg); /* Явное указание */
         }
 
+        /* Обратная (RU) */
         .flashcard-back {
-            background-color: #0078d4;
+            background-color: #43a047;
             color: white;
             transform: rotateY(180deg);
-            border: 6px solid #005a9e;
+            border: 6px solid #1b5e20;
+            z-index: 1;
         }
 
         .hint-text {
@@ -175,15 +186,15 @@
         .nav-btn {
             padding: 15px 40px;
             font-size: 2rem;
-            background-color: #28a745;
+            background-color: #66bb6a;
             color: white;
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
-        /* Пары */
+        /* --- ПАРЫ --- */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -194,8 +205,8 @@
 
         .game-card {
             background-color: white;
-            border: 2px solid #0078d4;
-            border-radius: 8px;
+            border: 3px solid #43a047;
+            border-radius: 12px;
             height: 90px;
             display: flex;
             justify-content: center;
@@ -204,19 +215,23 @@
             cursor: pointer;
             text-align: center;
             user-select: none;
+            color: #1b5e20;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
             .game-card.selected {
-                background-color: #ffd700;
-                border-color: #ff8c00;
+                background-color: #fff9c4;
+                border-color: #fbc02d;
+                color: #f57f17;
             }
 
             .game-card.matched {
                 visibility: hidden;
                 opacity: 0;
+                transition: opacity 0.3s;
             }
 
-        /* Анаграммы */
+        /* --- АНАГРАММЫ --- */
         .anagram-container {
             width: 100%;
             max-width: 600px;
@@ -227,10 +242,11 @@
 
         .anagram-hint {
             font-size: 2rem;
-            color: #555;
+            color: #a5d6a7;
             margin-bottom: 20px;
             font-weight: bold;
             text-align: center;
+            text-shadow: 1px 1px 1px black;
         }
 
         .anagram-answer-area {
@@ -238,13 +254,13 @@
             flex-wrap: wrap;
             gap: 8px;
             justify-content: center;
-            min-height: 60px;
+            min-height: 70px;
             margin-bottom: 30px;
-            padding: 10px;
-            background-color: white;
-            border-radius: 10px;
+            padding: 15px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 15px;
             width: 100%;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+            border: 2px dashed #a5d6a7;
         }
 
         .anagram-letters-area {
@@ -252,6 +268,7 @@
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
+            margin-bottom: 30px;
         }
 
         .letter-tile {
@@ -260,14 +277,14 @@
             font-size: 1.5rem;
             font-weight: bold;
             background-color: white;
-            border: 2px solid #0078d4;
-            color: #0078d4;
-            border-radius: 8px;
+            border: 2px solid #43a047;
+            color: #1b5e20;
+            border-radius: 10px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 4px 0 #005a9e;
+            box-shadow: 0 4px 0 #1b5e20;
             transition: transform 0.1s;
             user-select: none;
         }
@@ -278,16 +295,37 @@
             }
 
             .letter-tile.space-tile {
-                background-color: #eee;
-                border-color: #ccc;
-                box-shadow: 0 4px 0 #bbb;
+                background-color: #f1f8e9;
+                border-color: #c5e1a5;
+                box-shadow: 0 4px 0 #aed581;
+                opacity: 0.7;
             }
 
-        /* Сообщение если список пуст */
+        /* КНОПКИ УПРАВЛЕНИЯ */
+        .game-controls-row {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .refresh-btn {
+            background-color: #0288d1;
+            font-size: 1.2rem;
+            padding: 12px 30px;
+            border-radius: 10px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
         .empty-message {
-            color: #888;
+            color: #a5d6a7;
             font-style: italic;
             margin-top: 20px;
+            font-size: 1.2rem;
         }
 
         @media (min-width: 600px) {
@@ -323,6 +361,11 @@
                 height: 40px;
                 font-size: 1.2rem;
             }
+
+            .refresh-btn {
+                font-size: 1rem;
+                padding: 12px 20px;
+            }
         }
     </style>
 </head>
@@ -349,8 +392,13 @@
         <div id="flashcard-area" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
             <div class="flashcard-scene" onclick="flipCard()">
                 <div class="flashcard-inner" id="flash-card-element">
-                    <div class="flashcard-front"><span id="flash-text-de">DE</span><div class="hint-text">(Нажми)</div></div>
-                    <div class="flashcard-back"><span id="flash-text-ru">RU</span></div>
+                    <div class="flashcard-face flashcard-front">
+                        <span id="flash-text-de">DE</span>
+                        <div class="hint-text">(Нажми)</div>
+                    </div>
+                    <div class="flashcard-face flashcard-back">
+                        <span id="flash-text-ru">RU</span>
+                    </div>
                 </div>
             </div>
             <div class="flash-controls">
@@ -360,36 +408,47 @@
         </div>
 
         <div id="match-area" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
-            <div style="margin-bottom:15px; font-size:1.2rem;">Осталось пар: <span id="pairs-left">0</span></div>
+            <div style="margin-bottom:15px; font-size:1.2rem; color: #a5d6a7; font-weight:bold;">Осталось пар: <span id="pairs-left">0</span></div>
             <div class="grid-container" id="match-board"></div>
+
+            <div class="game-controls-row">
+                <button class="refresh-btn" onclick="runMatch()">🔄 Обновить</button>
+                <button class="back-btn" onclick="backToModes()">Меню игры</button>
+            </div>
         </div>
 
         <div id="anagram-area" class="hidden anagram-container">
-            <div style="font-size:1rem; color:#888; margin-bottom:5px;">Собери слово:</div>
+            <div style="font-size:1rem; color:#a5d6a7; margin-bottom:5px;">Собери немецкое слово:</div>
             <div id="anagram-hint-text" class="anagram-hint">...</div>
             <div id="anagram-answer" class="anagram-answer-area"></div>
             <div id="anagram-pool" class="anagram-letters-area"></div>
+
+            <div class="game-controls-row">
+                <button class="refresh-btn" onclick="runAnagram()">🔄 Обновить</button>
+                <button class="back-btn" onclick="backToModes()">Меню игры</button>
+            </div>
         </div>
 
         <div id="no-words-msg" class="empty-message hidden">В этом разделе пока нет слов.</div>
 
-        <button class="back-btn" onclick="backToModes()">Меню игры</button>
+        <button id="general-back-btn" class="back-btn hidden" onclick="backToModes()">Меню игры</button>
     </div>
 
     <script src="words.js"></script>
 
     <script>
         // Состояние
-        let currentTopicKey = '';     // Какую тему выбрали (например "Цвета")
-        let currentDifficulty = 'simple'; // 'simple' или 'hard'
-        let currentMode = '';         // 'flashcards', 'match', 'anagram'
-        let currentWordList = [];     // Текущий список слов (отфильтрованный)
+        let currentTopicKey = '';
+        let currentDifficulty = 'simple';
+        let currentMode = '';
+        let currentWordList = [];
 
-        // DOM элементы
+        // DOM
         const titleEl = document.getElementById('main-title');
         const topicScreen = document.getElementById('topic-screen');
         const modeScreen = document.getElementById('mode-screen');
         const gameContainer = document.getElementById('game-container');
+        const generalBackBtn = document.getElementById('general-back-btn');
 
         const areaFlash = document.getElementById('flashcard-area');
         const areaMatch = document.getElementById('match-area');
@@ -417,11 +476,10 @@
         let currentAnagramIndex = 0;
         let currentAnagramTarget = "";
         let currentAnagramBuilt = [];
+        let anagramSessionList = [];
 
-        // --- 1. ЗАПУСК И МЕНЮ ТЕМ ---
-        function init() {
-            renderTopics();
-        }
+        // --- 1. ЗАПУСК ---
+        function init() { renderTopics(); }
 
         function renderTopics() {
             topicScreen.innerHTML = '';
@@ -438,7 +496,7 @@
             currentTopicKey = topic;
             topicScreen.classList.add('hidden');
             modeScreen.classList.remove('hidden');
-            titleEl.innerText = topic; // Пишем название темы в заголовке
+            titleEl.innerText = topic;
         }
 
         function goHome() {
@@ -457,33 +515,28 @@
         }
 
         // --- 2. ВЫБОР ИГРЫ И СЛОЖНОСТИ ---
-
         function startGame(mode) {
             currentMode = mode;
             modeScreen.classList.add('hidden');
             gameContainer.classList.remove('hidden');
 
-            // Сбрасываем UI
             areaFlash.classList.add('hidden');
             areaMatch.classList.add('hidden');
             areaAnagram.classList.add('hidden');
             noWordsMsg.classList.add('hidden');
+            generalBackBtn.classList.add('hidden');
 
-            // Показываем нужную зону
-            if (mode === 'flashcards') areaFlash.classList.remove('hidden');
-            if (mode === 'match') areaMatch.classList.remove('hidden');
-            if (mode === 'anagram') areaAnagram.classList.remove('hidden');
+            if (mode === 'flashcards') { areaFlash.classList.remove('hidden'); generalBackBtn.classList.remove('hidden'); }
+            if (mode === 'match') { areaMatch.classList.remove('hidden'); }
+            if (mode === 'anagram') { areaAnagram.classList.remove('hidden'); }
 
-            // Загружаем данные (по умолчанию simple)
             loadDataAndRun();
         }
 
-        // Кнопки переключения сложности
         function setDifficulty(diff) {
-            if (currentDifficulty === diff) return; // Уже выбрано
+            if (currentDifficulty === diff) return;
             currentDifficulty = diff;
 
-            // Обновляем вид кнопок
             if (diff === 'simple') {
                 btnSimple.classList.add('active');
                 btnHard.classList.remove('active');
@@ -491,14 +544,10 @@
                 btnSimple.classList.remove('active');
                 btnHard.classList.add('active');
             }
-
-            // Перезапускаем игру с новым списком
             loadDataAndRun();
         }
 
         function loadDataAndRun() {
-            // Берем список слов из объекта: Topic -> Difficulty
-            // Защита: если вдруг такого списка нет, берем пустой массив
             if (wordCollections[currentTopicKey] && wordCollections[currentTopicKey][currentDifficulty]) {
                 currentWordList = wordCollections[currentTopicKey][currentDifficulty];
             } else {
@@ -507,87 +556,63 @@
 
             if (currentWordList.length === 0) {
                 noWordsMsg.classList.remove('hidden');
-                // Скрываем игровые поля
                 areaFlash.classList.add('hidden');
                 areaMatch.classList.add('hidden');
                 areaAnagram.classList.add('hidden');
+                generalBackBtn.classList.remove('hidden');
                 return;
             } else {
                 noWordsMsg.classList.add('hidden');
-                // Возвращаем видимость текущего режима
                 if (currentMode === 'flashcards') areaFlash.classList.remove('hidden');
                 if (currentMode === 'match') areaMatch.classList.remove('hidden');
                 if (currentMode === 'anagram') areaAnagram.classList.remove('hidden');
             }
 
-            // Запуск конкретной логики
             if (currentMode === 'flashcards') runFlashcards();
             if (currentMode === 'match') runMatch();
             if (currentMode === 'anagram') runAnagram();
         }
 
         function resetGameUI() {
-            // Сброс при выходе в меню
             areaFlash.classList.add('hidden');
             areaMatch.classList.add('hidden');
             areaAnagram.classList.add('hidden');
         }
 
-        // --- ЛОГИКА ИГР: КАРТОЧКИ ---
-        function runFlashcards() {
-            currentCardIndex = 0;
-            updateFlashcard();
-        }
+        // --- ЛОГИКА ИГР ---
+        function runFlashcards() { currentCardIndex = 0; updateFlashcard(); }
         function updateFlashcard() {
             flashCardEl.classList.remove('is-flipped');
             if (!currentWordList[currentCardIndex]) return;
             const word = currentWordList[currentCardIndex];
-            setTimeout(() => {
-                textDe.innerText = word.de;
-                textRu.innerText = word.ru;
-            }, 200);
+            setTimeout(() => { textDe.innerText = word.de; textRu.innerText = word.ru; }, 200);
         }
         function flipCard() { flashCardEl.classList.toggle('is-flipped'); }
         function nextCard() {
-            if (currentCardIndex < currentWordList.length - 1) {
-                currentCardIndex++; updateFlashcard();
-            } else { alert("Конец списка!"); }
+            if (currentCardIndex < currentWordList.length - 1) { currentCardIndex++; updateFlashcard(); }
+            else { alert("Конец списка!"); }
         }
         function prevCard() {
-            if (currentCardIndex > 0) {
-                currentCardIndex--; updateFlashcard();
-            }
+            if (currentCardIndex > 0) { currentCardIndex--; updateFlashcard(); }
         }
 
-        // --- ЛОГИКА ИГР: ПАРЫ ---
         function runMatch() {
-            matchBoard.innerHTML = '';
-            selectedMatchCards = [];
+            matchBoard.innerHTML = ''; selectedMatchCards = [];
             const count = Math.min(PAIRS_ON_SCREEN, currentWordList.length);
             const randomPairs = getRandomSubarray(currentWordList, count);
-            pairsLeft = randomPairs.length;
-            pairsLeftDisplay.innerText = pairsLeft;
-
+            pairsLeft = randomPairs.length; pairsLeftDisplay.innerText = pairsLeft;
             let cards = [];
-            randomPairs.forEach(p => {
-                cards.push({ id: p.id, text: p.de });
-                cards.push({ id: p.id, text: p.ru });
-            });
+            randomPairs.forEach(p => { cards.push({ id: p.id, text: p.de }); cards.push({ id: p.id, text: p.ru }); });
             cards = shuffleArray(cards);
-
             cards.forEach(c => {
-                const el = document.createElement('div');
-                el.className = 'game-card';
-                el.innerText = c.text;
-                el.dataset.id = c.id;
-                el.onclick = () => handleMatchClick(el);
-                matchBoard.appendChild(el);
+                const el = document.createElement('div'); el.className = 'game-card';
+                el.innerText = c.text; el.dataset.id = c.id;
+                el.onclick = () => handleMatchClick(el); matchBoard.appendChild(el);
             });
         }
         function handleMatchClick(card) {
             if (card.classList.contains('matched') || card.classList.contains('selected') || selectedMatchCards.length >= 2) return;
-            card.classList.add('selected');
-            selectedMatchCards.push(card);
+            card.classList.add('selected'); selectedMatchCards.push(card);
             if (selectedMatchCards.length === 2) {
                 const c1 = selectedMatchCards[0]; const c2 = selectedMatchCards[1];
                 if (c1.dataset.id === c2.dataset.id) {
@@ -597,39 +622,25 @@
                         pairsLeft--; pairsLeftDisplay.innerText = pairsLeft;
                         if (pairsLeft === 0) setTimeout(() => alert("Победа!"), 300);
                     }, 300);
-                } else {
-                    setTimeout(() => { c1.classList.remove('selected'); c2.classList.remove('selected'); }, 1000);
-                }
+                } else { setTimeout(() => { c1.classList.remove('selected'); c2.classList.remove('selected'); }, 1000); }
                 setTimeout(() => { selectedMatchCards = []; }, 300);
             }
         }
 
-        // --- ЛОГИКА ИГР: АНАГРАММЫ ---
         function runAnagram() {
             currentAnagramIndex = 0;
-            // Копируем и мешаем список
-            // Важно: работаем с копией списка, чтобы не портить оригинал
             let listCopy = currentWordList.slice();
-            listCopy = shuffleArray(listCopy);
-
-            // Внимание: чтобы работать с runAnagramRound, нужно сохранить перемешанный список глобально или передать
-            // Для простоты используем глобальную переменную currentWordList, но мы ее не должны портить
-            // Лучше создадим временную переменную для анаграмм
-            anagramSessionList = listCopy;
-
+            anagramSessionList = shuffleArray(listCopy);
             loadAnagramRound();
         }
-
-        let anagramSessionList = [];
-
         function loadAnagramRound() {
             anagramAnswer.innerHTML = ''; anagramPool.innerHTML = ''; currentAnagramBuilt = [];
             if (currentAnagramIndex >= anagramSessionList.length) {
-                alert("Все слова собраны!"); return;
+                alert("Все слова в этом раунде собраны! Начинаем заново.");
+                runAnagram(); return;
             }
             const wordObj = anagramSessionList[currentAnagramIndex];
-            currentAnagramTarget = wordObj.de;
-            anagramHint.innerText = wordObj.ru;
+            currentAnagramTarget = wordObj.de; anagramHint.innerText = wordObj.ru;
             let letters = currentAnagramTarget.split('');
             letters = shuffleArray(letters);
             letters.forEach((char) => {
@@ -639,8 +650,7 @@
             });
         }
         function createLetterButton(char) {
-            const btn = document.createElement('div');
-            btn.className = 'letter-tile';
+            const btn = document.createElement('div'); btn.className = 'letter-tile';
             if (char === ' ') { btn.classList.add('space-tile'); btn.innerHTML = '&nbsp;'; }
             else { btn.innerText = char; }
             return btn;
@@ -657,18 +667,17 @@
         }
         function checkAnagramWin() {
             if (currentAnagramBuilt.join('') === currentAnagramTarget) {
-                anagramAnswer.style.backgroundColor = '#90ee90';
+                anagramAnswer.style.backgroundColor = '#a5d6a7';
                 setTimeout(() => {
-                    anagramAnswer.style.backgroundColor = 'white';
+                    anagramAnswer.style.backgroundColor = 'rgba(255,255,255,0.1)';
                     currentAnagramIndex++; loadAnagramRound();
                 }, 800);
             }
         }
 
-        // --- УТИЛИТЫ ---
+        // Utils
         function getRandomSubarray(arr, size) {
-            const shuffled = arr.slice(0);
-            let i = arr.length, temp, index;
+            const shuffled = arr.slice(0); let i = arr.length, temp, index;
             while (i--) { index = Math.floor(Math.random() * (i + 1)); temp = shuffled[index]; shuffled[index] = shuffled[i]; shuffled[i] = temp; }
             return shuffled.slice(0, size);
         }
@@ -677,9 +686,7 @@
             return array;
         }
 
-        // Старт
         init();
-
     </script>
 </body>
 </html>
