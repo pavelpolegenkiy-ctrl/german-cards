@@ -1,19 +1,34 @@
-// JavaScript source code
 // words.js
-const wordData = [
-    { id: 1, de: "der Hund", ru: "Собака" },
-    { id: 2, de: "die Katze", ru: "Кошка" },
-    { id: 3, de: "das Haus", ru: "Дом" },
-    { id: 4, de: "der Tisch", ru: "Стол" },
-    { id: 5, de: "das Buch", ru: "Книга" },
-    { id: 6, de: "die Schule", ru: "Школа" },
-    { id: 7, de: "der Apfel", ru: "Яблоко" },
-    { id: 8, de: "das Auto", ru: "Машина" },
-    { id: 9, de: "die Sonne", ru: "Солнце" },
-    { id: 10, de: "der Freund", ru: "Друг" },
-    { id: 11, de: "arbeiten", ru: "Работать" },
-    { id: 12, de: "lernen", ru: "Учиться" },
-    // Сюда можно добавлять сотни новых строк:
-    { id: 13, de: "rot", ru: "Красный" },
-    { id: 14, de: "blau", ru: "Синий" }
-];
+// РўРµРїРµСЂСЊ СЌС‚Рѕ РѕР±СЉРµРєС‚, РіРґРµ РєР»СЋС‡Рё вЂ” РЅР°Р·РІР°РЅРёСЏ С‚РµРј
+const wordCollections = {
+    "РљС‚Рѕ СЏ? (РЎРµРјСЊСЏ)": [
+        { id: 1, de: "ich", ru: "РЇ" },
+        { id: 2, de: "die Mutter", ru: "РњР°РјР°" },
+        { id: 3, de: "der Vater", ru: "РџР°РїР°" },
+        { id: 4, de: "die Schwester", ru: "РЎРµСЃС‚СЂР°" },
+        { id: 5, de: "der Bruder", ru: "Р‘СЂР°С‚" },
+        { id: 6, de: "die Oma", ru: "Р‘Р°Р±СѓС€РєР°" },
+        { id: 7, de: "der Opa", ru: "Р”РµРґСѓС€РєР°" },
+        { id: 8, de: "der Freund", ru: "Р”СЂСѓРі" }
+    ],
+    "Р¦РІРµС‚Р°": [
+        { id: 101, de: "rot", ru: "РљСЂР°СЃРЅС‹Р№" },
+        { id: 102, de: "blau", ru: "РЎРёРЅРёР№" },
+        { id: 103, de: "grГјn", ru: "Р—РµР»РµРЅС‹Р№" },
+        { id: 104, de: "gelb", ru: "Р–РµР»С‚С‹Р№" },
+        { id: 105, de: "schwarz", ru: "Р§РµСЂРЅС‹Р№" },
+        { id: 106, de: "weiГџ", ru: "Р‘РµР»С‹Р№" },
+        { id: 107, de: "grau", ru: "РЎРµСЂС‹Р№" },
+        { id: 108, de: "braun", ru: "РљРѕСЂРёС‡РЅРµРІС‹Р№" }
+    ],
+    "РџРµСЂРІС‹Рµ РіР»Р°РіРѕР»С‹": [
+        { id: 201, de: "sein", ru: "Р‘С‹С‚СЊ" },
+        { id: 202, de: "haben", ru: "РРјРµС‚СЊ" },
+        { id: 203, de: "machen", ru: "Р”РµР»Р°С‚СЊ" },
+        { id: 204, de: "gehen", ru: "РРґС‚Рё" },
+        { id: 205, de: "kommen", ru: "РџСЂРёС…РѕРґРёС‚СЊ" },
+        { id: 206, de: "lernen", ru: "РЈС‡РёС‚СЊСЃСЏ" },
+        { id: 207, de: "sprechen", ru: "Р“РѕРІРѕСЂРёС‚СЊ" },
+        { id: 208, de: "essen", ru: "Р•СЃС‚СЊ (РєСѓС€Р°С‚СЊ)" }
+    ]
+};
