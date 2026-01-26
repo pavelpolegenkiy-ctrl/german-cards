@@ -1,11 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Учим Немецкий</title>
     <style>
-        /* --- 1. ОСНОВНЫЕ НАСТРОЙКИ --- */
+        /* --- ВСТРОЕННЫЙ CSS --- */
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f8ff;
@@ -15,13 +16,20 @@
             justify-content: flex-start;
             margin: 0;
             padding: 10px;
-            height: 100vh;
+            min-height: 100vh;
         }
 
-        h1 { color: #333; margin: 10px 0; text-align: center; }
-        .hidden { display: none !important; }
+        h1 {
+            color: #333;
+            margin: 10px 0;
+            text-align: center;
+        }
 
-        /* Кнопки меню */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Меню */
         .menu-container {
             display: flex;
             flex-direction: column;
@@ -40,8 +48,13 @@
             border-radius: 12px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
         }
-        
+
+            .menu-btn:active {
+                transform: scale(0.98);
+            }
+
         .back-btn {
             background-color: #666;
             margin-top: 20px;
@@ -53,14 +66,13 @@
             cursor: pointer;
         }
 
-        /* --- 2. СТИЛИ ДЛЯ КАРТОЧЕК (ОБНОВЛЕННЫЕ) --- */
+        /* --- ФЛЕШ-КАРТОЧКИ (ИСПРАВЛЕННЫЕ) --- */
         .flashcard-scene {
-            /* ГОРИЗОНТАЛЬНАЯ КАРТОЧКА */
-            width: 90vw;            /* 90% от ширины экрана */
-            max-width: 600px;       /* Но не шире 600px */
-            height: 350px;          /* Фиксированная высота */
+            width: 95%;
+            max-width: 700px;
+            height: 300px;
             perspective: 1000px;
-            margin: 20px auto;      /* Отступы сверху и снизу */
+            margin: 30px auto;
             cursor: pointer;
         }
 
@@ -74,64 +86,72 @@
             border-radius: 20px;
         }
 
-        .flashcard-inner.is-flipped {
-            transform: rotateY(180deg);
-        }
+            .flashcard-inner.is-flipped {
+                transform: rotateY(180deg);
+            }
 
         .flashcard-face {
             position: absolute;
             width: 100%;
             height: 100%;
-            -webkit-backface-visibility: hidden; /* Для Safari/Chrome */
-            backface-visibility: hidden;         /* Скрываем заднюю часть */
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            /* --- ТВОЕ ИСПРАВЛЕНИЕ ЗДЕСЬ --- */
             display: flex;
+            flex-direction: column; /* Ставим элементы в колонку */
             justify-content: center;
             align-items: center;
             border-radius: 20px;
-            padding: 20px;
+            padding: 10px;
             box-sizing: border-box;
             text-align: center;
-            
-            /* --- ГИГАНТСКИЙ ШРИФТ --- */
-            font-size: 4rem;        /* Очень крупно */
-            font-weight: bold;
-            line-height: 1.2;
         }
 
-        /* Лицевая сторона (Белая) */
+        /* Стиль самого текста внутри */
+        #flash-text-de, #flash-text-ru {
+            display: block;
+            width: 100%;
+            font-size: 4rem;
+            font-weight: bold;
+            line-height: 1.1;
+            word-wrap: break-word; /* Чтобы длинные слова не вылезали */
+        }
+
+        /* Лицевая сторона */
         .flashcard-front {
             background-color: #ffffff;
             color: #0078d4;
-            border: 5px solid #0078d4;
+            border: 6px solid #0078d4;
         }
 
-        /* Обратная сторона (Синяя) */
+        /* Обратная сторона */
         .flashcard-back {
             background-color: #0078d4;
             color: white;
             transform: rotateY(180deg);
-            border: 5px solid #005a9e;
+            border: 6px solid #005a9e;
         }
 
-        /* Подсказка внизу карточки */
         .hint-text {
-            position: absolute;
-            bottom: 15px;
+            margin-top: 20px; /* Отступ от слова до подсказки */
             font-size: 1rem;
             font-weight: normal;
             opacity: 0.6;
+            color: inherit;
         }
 
-        /* Кнопки управления (стрелки) */
+        /* Кнопки навигации */
         .flash-controls {
             display: flex;
-            gap: 30px;
+            gap: 40px;
             justify-content: center;
             width: 100%;
+            margin-bottom: 20px;
         }
+
         .nav-btn {
             padding: 15px 40px;
-            font-size: 2rem;       /* Крупные стрелки */
+            font-size: 2rem;
             background-color: #28a745;
             color: white;
             border: none;
@@ -140,13 +160,21 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
-        /* Адаптив: если экран очень маленький (телефон вертикально) */
         @media (max-width: 500px) {
-            .flashcard-scene { height: 250px; } /* Чуть поменьше высота */
-            .flashcard-face { font-size: 2.5rem; } /* Чуть поменьше шрифт */
+            #flash-text-de, #flash-text-ru {
+                font-size: 2.5rem;
+            }
+
+            .flashcard-scene {
+                height: 250px;
+            }
+
+            .nav-btn {
+                padding: 10px 30px;
+            }
         }
-        
-        /* Сетка для игры "Найди пару" */
+
+        /* --- ИГРА НАЙДИ ПАРУ --- */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -154,6 +182,7 @@
             width: 100%;
             max-width: 800px;
         }
+
         .game-card {
             background-color: white;
             border: 2px solid #0078d4;
@@ -167,11 +196,26 @@
             text-align: center;
             user-select: none;
         }
-        .game-card.selected { background-color: #ffd700; border-color: #ff8c00; }
-        .game-card.matched { visibility: hidden; opacity: 0; }
+
+            .game-card.selected {
+                background-color: #ffd700;
+                border-color: #ff8c00;
+            }
+
+            .game-card.matched {
+                visibility: hidden;
+                opacity: 0;
+            }
+
         @media (min-width: 600px) {
-            .grid-container { grid-template-columns: repeat(4, 1fr); }
-            .game-card { height: 120px; font-size: 1.3rem; }
+            .grid-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .game-card {
+                height: 120px;
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
@@ -187,12 +231,12 @@
     <div id="topic-screen" class="menu-container hidden"></div>
 
     <div id="flashcard-screen" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
-        
+
         <div class="flashcard-scene" onclick="flipCard()">
             <div class="flashcard-inner" id="flash-card-element">
                 <div class="flashcard-front">
                     <span id="flash-text-de">DE</span>
-                    <div class="hint-text">(Нажми для перевода)</div>
+                    <div class="hint-text">(Нажми)</div>
                 </div>
                 <div class="flashcard-back">
                     <span id="flash-text-ru">RU</span>
@@ -204,7 +248,7 @@
             <button class="nav-btn" onclick="prevCard()">←</button>
             <button class="nav-btn" onclick="nextCard()">→</button>
         </div>
-        
+
         <button class="back-btn" onclick="goHome()">В меню</button>
     </div>
 
@@ -217,7 +261,8 @@
     <script src="words.js"></script>
 
     <script>
-        let currentMode = ''; 
+        // ЛОГИКА
+        let currentMode = '';
         let currentWordList = [];
         let currentCardIndex = 0;
         let selectedMatchCards = [];
@@ -274,7 +319,7 @@
             titleEl.innerText = "Меню";
         }
 
-        // --- ЛОГИКА КАРТОЧЕК ---
+        // --- КАРТОЧКИ ---
         function startFlashcards() {
             flashScreen.classList.remove('hidden');
             titleEl.innerText = "Учим слова";
@@ -285,7 +330,6 @@
         function updateFlashcard() {
             flashCardEl.classList.remove('is-flipped');
             const word = currentWordList[currentCardIndex];
-            // Небольшая задержка, чтобы текст не менялся мгновенно, пока карта не перевернулась
             setTimeout(() => {
                 textDe.innerText = word.de;
                 textRu.innerText = word.ru;
@@ -293,16 +337,14 @@
         }
 
         function flipCard() { flashCardEl.classList.toggle('is-flipped'); }
-        
+
         function nextCard() {
             if (currentCardIndex < currentWordList.length - 1) {
                 currentCardIndex++;
                 updateFlashcard();
-            } else {
-                alert("Это было последнее слово!");
-            }
+            } else { alert("Конец!"); }
         }
-        
+
         function prevCard() {
             if (currentCardIndex > 0) {
                 currentCardIndex--;
@@ -310,25 +352,22 @@
             }
         }
 
-        // --- ЛОГИКА ИГРЫ ---
+        // --- ИГРА ---
         function startMatchGame() {
             matchScreen.classList.remove('hidden');
             titleEl.innerText = "Найди пару";
             matchBoard.innerHTML = '';
             selectedMatchCards = [];
-            
             const count = Math.min(PAIRS_ON_SCREEN, currentWordList.length);
             const randomPairs = getRandomSubarray(currentWordList, count);
             pairsLeft = randomPairs.length;
             pairsLeftDisplay.innerText = pairsLeft;
-
             let cards = [];
             randomPairs.forEach(p => {
                 cards.push({ id: p.id, text: p.de });
                 cards.push({ id: p.id, text: p.ru });
             });
             cards = shuffleArray(cards);
-
             cards.forEach(c => {
                 const el = document.createElement('div');
                 el.className = 'game-card';
@@ -343,7 +382,6 @@
             if (card.classList.contains('matched') || card.classList.contains('selected') || selectedMatchCards.length >= 2) return;
             card.classList.add('selected');
             selectedMatchCards.push(card);
-
             if (selectedMatchCards.length === 2) {
                 const c1 = selectedMatchCards[0];
                 const c2 = selectedMatchCards[1];
