@@ -66,7 +66,7 @@
             cursor: pointer;
         }
 
-        /* --- ФЛЕШ-КАРТОЧКИ (ИСПРАВЛЕННЫЕ) --- */
+        /* --- ФЛЕШ-КАРТОЧКИ --- */
         .flashcard-scene {
             width: 95%;
             max-width: 700px;
@@ -96,9 +96,8 @@
             height: 100%;
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
-            /* --- ТВОЕ ИСПРАВЛЕНИЕ ЗДЕСЬ --- */
             display: flex;
-            flex-direction: column; /* Ставим элементы в колонку */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             border-radius: 20px;
@@ -107,24 +106,21 @@
             text-align: center;
         }
 
-        /* Стиль самого текста внутри */
         #flash-text-de, #flash-text-ru {
             display: block;
             width: 100%;
             font-size: 4rem;
             font-weight: bold;
             line-height: 1.1;
-            word-wrap: break-word; /* Чтобы длинные слова не вылезали */
+            word-wrap: break-word;
         }
 
-        /* Лицевая сторона */
         .flashcard-front {
             background-color: #ffffff;
             color: #0078d4;
             border: 6px solid #0078d4;
         }
 
-        /* Обратная сторона */
         .flashcard-back {
             background-color: #0078d4;
             color: white;
@@ -133,14 +129,12 @@
         }
 
         .hint-text {
-            margin-top: 20px; /* Отступ от слова до подсказки */
+            margin-top: 20px;
             font-size: 1rem;
-            font-weight: normal;
             opacity: 0.6;
             color: inherit;
         }
 
-        /* Кнопки навигации */
         .flash-controls {
             display: flex;
             gap: 40px;
@@ -158,20 +152,6 @@
             border-radius: 12px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-
-        @media (max-width: 500px) {
-            #flash-text-de, #flash-text-ru {
-                font-size: 2.5rem;
-            }
-
-            .flashcard-scene {
-                height: 250px;
-            }
-
-            .nav-btn {
-                padding: 10px 30px;
-            }
         }
 
         /* --- ИГРА НАЙДИ ПАРУ --- */
@@ -207,6 +187,74 @@
                 opacity: 0;
             }
 
+        /* --- ИГРА АНАГРАММЫ (НОВОЕ) --- */
+        .anagram-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .anagram-hint {
+            font-size: 2rem;
+            color: #555;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        /* Поле ответа */
+        .anagram-answer-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            min-height: 60px;
+            margin-bottom: 30px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 10px;
+            width: 100%;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        /* Область букв */
+        .anagram-letters-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        /* Кнопка с буквой */
+        .letter-tile {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background-color: white;
+            border: 2px solid #0078d4;
+            color: #0078d4;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 0 #005a9e;
+            transition: transform 0.1s;
+            user-select: none;
+        }
+
+            .letter-tile:active {
+                transform: translateY(4px);
+                box-shadow: none;
+            }
+
+            /* Если буква пробел */
+            .letter-tile.space-tile {
+                background-color: #eee;
+                border-color: #ccc;
+                box-shadow: 0 4px 0 #bbb;
+            }
+
+        /* Адаптив */
         @media (min-width: 600px) {
             .grid-container {
                 grid-template-columns: repeat(4, 1fr);
@@ -215,6 +263,30 @@
             .game-card {
                 height: 120px;
                 font-size: 1.3rem;
+            }
+
+            #flash-text-de, #flash-text-ru {
+                font-size: 4rem;
+            }
+        }
+
+        @media (max-width: 500px) {
+            #flash-text-de, #flash-text-ru {
+                font-size: 2.5rem;
+            }
+
+            .flashcard-scene {
+                height: 250px;
+            }
+
+            .nav-btn {
+                padding: 10px 30px;
+            }
+
+            .letter-tile {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -226,12 +298,12 @@
     <div id="mode-screen" class="menu-container">
         <button class="menu-btn" onclick="selectMode('flashcards')">📖 Учить слова</button>
         <button class="menu-btn" onclick="selectMode('match')">🎮 Играть (Пары)</button>
+        <button class="menu-btn" onclick="selectMode('anagram')">🔠 Анаграммы</button>
     </div>
 
     <div id="topic-screen" class="menu-container hidden"></div>
 
     <div id="flashcard-screen" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
-
         <div class="flashcard-scene" onclick="flipCard()">
             <div class="flashcard-inner" id="flash-card-element">
                 <div class="flashcard-front">
@@ -243,12 +315,10 @@
                 </div>
             </div>
         </div>
-
         <div class="flash-controls">
             <button class="nav-btn" onclick="prevCard()">←</button>
             <button class="nav-btn" onclick="nextCard()">→</button>
         </div>
-
         <button class="back-btn" onclick="goHome()">В меню</button>
     </div>
 
@@ -258,28 +328,61 @@
         <button class="back-btn" onclick="goHome()">В меню</button>
     </div>
 
+    <div id="anagram-screen" class="hidden anagram-container">
+        <div style="font-size:1rem; color:#888; margin-bottom:5px;">Собери немецкое слово:</div>
+        <div id="anagram-hint-text" class="anagram-hint">РУССКОЕ СЛОВО</div>
+
+        <div id="anagram-answer" class="anagram-answer-area"></div>
+
+        <div id="anagram-pool" class="anagram-letters-area"></div>
+
+        <button class="back-btn" onclick="goHome()">В меню</button>
+    </div>
+
     <script src="words.js"></script>
 
     <script>
-        // ЛОГИКА
+        // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
         let currentMode = '';
         let currentWordList = [];
+
+        // Переменные для Карточек
         let currentCardIndex = 0;
+
+        // Переменные для Игры Пары
         let selectedMatchCards = [];
         let pairsLeft = 0;
         const PAIRS_ON_SCREEN = 6;
 
+        // Переменные для Анаграмм
+        let currentAnagramIndex = 0;
+        let currentAnagramTarget = ""; // Слово, которое ищем (DE)
+        let currentAnagramBuilt = [];  // Буквы, которые уже нажали
+
+        // ЭЛЕМЕНТЫ DOM
         const titleEl = document.getElementById('main-title');
         const modeScreen = document.getElementById('mode-screen');
         const topicScreen = document.getElementById('topic-screen');
+
         const flashScreen = document.getElementById('flashcard-screen');
         const matchScreen = document.getElementById('match-screen');
+        const anagramScreen = document.getElementById('anagram-screen');
+
+        // Элементы карточек
         const flashCardEl = document.getElementById('flash-card-element');
         const textDe = document.getElementById('flash-text-de');
         const textRu = document.getElementById('flash-text-ru');
+
+        // Элементы пар
         const matchBoard = document.getElementById('match-board');
         const pairsLeftDisplay = document.getElementById('pairs-left');
 
+        // Элементы анаграмм
+        const anagramHint = document.getElementById('anagram-hint-text');
+        const anagramAnswer = document.getElementById('anagram-answer');
+        const anagramPool = document.getElementById('anagram-pool');
+
+        // --- НАВИГАЦИЯ ---
         function selectMode(mode) {
             currentMode = mode;
             modeScreen.classList.add('hidden');
@@ -305,21 +408,24 @@
         }
 
         function startApp(topic) {
-            currentWordList = wordCollections[topic];
+            currentWordList = wordCollections[topic]; // Загружаем слова
             topicScreen.classList.add('hidden');
+
             if (currentMode === 'flashcards') startFlashcards();
-            else startMatchGame();
+            else if (currentMode === 'match') startMatchGame();
+            else if (currentMode === 'anagram') startAnagramGame();
         }
 
         function goHome() {
             flashScreen.classList.add('hidden');
             matchScreen.classList.add('hidden');
+            anagramScreen.classList.add('hidden');
             topicScreen.classList.add('hidden');
             modeScreen.classList.remove('hidden');
             titleEl.innerText = "Меню";
         }
 
-        // --- КАРТОЧКИ ---
+        // --- 1. ЛОГИКА КАРТОЧЕК ---
         function startFlashcards() {
             flashScreen.classList.remove('hidden');
             titleEl.innerText = "Учим слова";
@@ -337,14 +443,12 @@
         }
 
         function flipCard() { flashCardEl.classList.toggle('is-flipped'); }
-
         function nextCard() {
             if (currentCardIndex < currentWordList.length - 1) {
                 currentCardIndex++;
                 updateFlashcard();
-            } else { alert("Конец!"); }
+            } else { alert("Конец списка!"); }
         }
-
         function prevCard() {
             if (currentCardIndex > 0) {
                 currentCardIndex--;
@@ -352,7 +456,7 @@
             }
         }
 
-        // --- ИГРА ---
+        // --- 2. ЛОГИКА ИГРЫ ПАРЫ ---
         function startMatchGame() {
             matchScreen.classList.remove('hidden');
             titleEl.innerText = "Найди пару";
@@ -400,6 +504,92 @@
             }
         }
 
+        // --- 3. ЛОГИКА АНАГРАММ (НОВАЯ) ---
+        function startAnagramGame() {
+            anagramScreen.classList.remove('hidden');
+            titleEl.innerText = "Собери слово";
+            currentAnagramIndex = 0;
+            // Перемешаем порядок слов, чтобы было интересно
+            currentWordList = shuffleArray(currentWordList.slice());
+            loadAnagramRound();
+        }
+
+        function loadAnagramRound() {
+            // Очистка
+            anagramAnswer.innerHTML = '';
+            anagramPool.innerHTML = '';
+            currentAnagramBuilt = [];
+
+            if (currentAnagramIndex >= currentWordList.length) {
+                alert("Все слова собраны! Молодец!");
+                goHome();
+                return;
+            }
+
+            const wordObj = currentWordList[currentAnagramIndex];
+            currentAnagramTarget = wordObj.de; // Целевое слово: "der Hund"
+            anagramHint.innerText = wordObj.ru; // Подсказка: "Собака"
+
+            // Разбиваем слово на буквы и перемешиваем
+            let letters = currentAnagramTarget.split('');
+            letters = shuffleArray(letters);
+
+            // Создаем кнопки с буквами
+            letters.forEach((char, index) => {
+                // Создаем кнопку
+                const btn = createLetterButton(char);
+                // При клике: переносим в поле ответа
+                btn.onclick = () => moveLetterToAnswer(btn, char);
+                anagramPool.appendChild(btn);
+            });
+        }
+
+        function createLetterButton(char) {
+            const btn = document.createElement('div');
+            btn.className = 'letter-tile';
+            if (char === ' ') {
+                btn.classList.add('space-tile');
+                btn.innerHTML = '&nbsp;'; // Визуально пробел
+            } else {
+                btn.innerText = char;
+            }
+            return btn;
+        }
+
+        function moveLetterToAnswer(btn, char) {
+            // Убираем из пула
+            if (btn.parentNode === anagramPool) {
+                anagramPool.removeChild(btn);
+                anagramAnswer.appendChild(btn);
+                currentAnagramBuilt.push(char); // Запоминаем букву
+
+                // Проверяем победу
+                checkAnagramWin();
+            }
+            // Если кликнули в поле ответа - возвращаем назад
+            else {
+                anagramAnswer.removeChild(btn);
+                anagramPool.appendChild(btn);
+                // Удаляем первую попавшуюся такую букву из собранного массива (с конца)
+                const idx = currentAnagramBuilt.lastIndexOf(char);
+                if (idx > -1) currentAnagramBuilt.splice(idx, 1);
+            }
+        }
+
+        function checkAnagramWin() {
+            const currentString = currentAnagramBuilt.join('');
+            if (currentString === currentAnagramTarget) {
+                // Победа!
+                anagramAnswer.style.backgroundColor = '#90ee90'; // Зеленая вспышка
+                setTimeout(() => {
+                    anagramAnswer.style.backgroundColor = 'white';
+                    currentAnagramIndex++;
+                    loadAnagramRound();
+                }, 800);
+            }
+        }
+
+        // --- УТИЛИТЫ ---
         function getRandomSubarray(arr, size) {
             const shuffled = arr.slice(0);
             let i = arr.length, temp, index;

@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Генератор слов для игры</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f4f4f4;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-family: monospace;
+        }
+
+        button {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+            button:hover {
+                background: #005a9e;
+            }
+
+        .step {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        code {
+            background: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        #output {
+            background: #eeffee;
+            border-color: #88cc88;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="step">
+        <h2>Шаг 1: Подготовка</h2>
+        <p>1. Открой Excel.</p>
+        <p>
+            2. Напиши слова в два столбика (без заголовков):<br>
+            <code>Немецкое слово</code> | <code>Русское слово</code>
+        </p>
+        <p>3. Выдели ячейки и скопируй их (Ctrl+C).</p>
+    </div>
+
+    <div class="step">
+        <h2>Шаг 2: Вставка</h2>
+        <p>Вставь скопированное сюда (Ctrl+V):</p>
+        <textarea id="input" placeholder="der Hund    Собака&#10;die Katze    Кошка"></textarea>
+
+        <p>Название темы (например, "Еда"):</p>
+        <input type="text" id="topicName" value="Новая тема" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box;">
+
+        <button onclick="convert()">Сгенерировать код</button>
+    </div>
+
+    <div class="step">
+        <h2>Шаг 3: Результат</h2>
+        <p>Скопируй этот код и добавь его в файл <b>words.js</b> внутри фигурных скобок:</p>
+        <textarea id="output" readonly></textarea>
+        <button onclick="copyResult()">Копировать в буфер</button>
+    </div>
+
+    <script>
+        function convert() {
+            const raw = document.getElementById('input').value.trim();
+            const topic = document.getElementById('topicName').value.trim() || "Новая тема";
+
+            if (!raw) { alert("Сначала вставьте слова из Excel!"); return; }
+
+            // Разбиваем на строки
+            const lines = raw.split('\n');
+            let resultJs = `    "${topic}": [\n`;
+
+            lines.forEach((line, index) => {
+                // Разбиваем строку по табуляции (Excel копирует через Tab)
+                let parts = line.split('\t');
+
+                // Если нет табов, пробуем разделить по двойным пробелам (на всякий случай)
+                if (parts.length < 2) parts = line.split('  ').filter(p => p.trim() !== '');
+
+                if (parts.length >= 2) {
+                    const de = parts[0].trim();
+                    const ru = parts[1].trim();
+
+                    // Генерируем уникальный ID (время + номер строки) чтобы не думать о цифрах
+                    const uniqueId = Date.now() + index;
+
+                    resultJs += `        { id: ${uniqueId}, de: "${de}", ru: "${ru}" }`;
+
+                    // Ставим запятую везде, кроме последней строки
+                    if (index < lines.length - 1) resultJs += ',';
+                    resultJs += '\n';
+                }
+            });
+
+            resultJs += `    ],`; // Запятая в конце важна, если мы будем добавлять еще темы
+
+            document.getElementById('output').value = resultJs;
+        }
+
+        function copyResult() {
+            const copyText = document.getElementById("output");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Код скопирован! Теперь открой файл words.js и вставь это.");
+        }
+    </script>
+
+</body>
+</html>
