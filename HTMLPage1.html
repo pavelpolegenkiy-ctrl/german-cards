@@ -1,0 +1,250 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учим Немецкий: Найди Пару</title>
+    <style>
+        /* Стили (CSS) - внешний вид */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            touch-action: manipulation; /* Улучшает отклик на планшетах */
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .game-info {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        /* Сетка для карточек */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Стиль карточки */
+        .card {
+            background-color: white;
+            border: 2px solid #0078d4;
+            border-radius: 10px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            user-select: none; /* Запрет выделения текста */
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            padding: 5px;
+        }
+
+            .card:active {
+                transform: scale(0.95);
+            }
+
+            /* Выбранная карточка */
+            .card.selected {
+                background-color: #ffd700;
+                border-color: #ff8c00;
+            }
+
+            /* Правильная пара */
+            .card.matched {
+                background-color: #90ee90; /* Зеленый */
+                border-color: #228b22;
+                visibility: hidden; /* Скрываем угаданные, или можно оставить visible */
+                opacity: 0;
+                transition: opacity 0.5s;
+            }
+
+        /* Кнопка перезапуска */
+        #restart-btn {
+            margin-top: 30px;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Адаптив для планшетов */
+        @media (min-width: 600px) {
+            .grid-container {
+                grid-template-columns: repeat(4, 1fr); /* 4 колонки на больших экранах */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Deutsch-Russisch Пары</h1>
+
+    <div class="game-info">
+        Осталось пар: <span id="pairs-left">0</span>
+    </div>
+
+    <div class="grid-container" id="game-board">
+    </div>
+
+    <button id="restart-btn" onclick="startGame()">Новая игра</button>
+
+    <script>
+        // --- 1. БАЗА ДАННЫХ СЛОВ ---
+        // Сюда можно добавить хоть 1000 пар.
+        const allWords = [
+            { id: 1, de: "der Hund", ru: "Собака" },
+            { id: 2, de: "die Katze", ru: "Кошка" },
+            { id: 3, de: "das Haus", ru: "Дом" },
+            { id: 4, de: "der Tisch", ru: "Стол" },
+            { id: 5, de: "das Buch", ru: "Книга" },
+            { id: 6, de: "die Schule", ru: "Школа" },
+            { id: 7, de: "der Apfel", ru: "Яблоко" },
+            { id: 8, de: "das Auto", ru: "Машина" },
+            { id: 9, de: "die Sonne", ru: "Солнце" },
+            { id: 10, de: "der Freund", ru: "Друг" },
+            { id: 11, de: "arbeiten", ru: "Работать" },
+            { id: 12, de: "lernen", ru: "Учиться" }
+        ];
+
+        let selectedCards = [];
+        let pairsLeft = 0;
+        const gameBoard = document.getElementById('game-board');
+        const pairsLeftDisplay = document.getElementById('pairs-left');
+        const PAIRS_ON_SCREEN = 6; // Сколько пар показывать за один раз
+
+        // --- 2. ЛОГИКА ИГРЫ ---
+
+        function startGame() {
+            gameBoard.innerHTML = '';
+            selectedCards = [];
+
+            // 1. Выбираем случайные пары из большого списка
+            const randomPairs = getRandomSubarray(allWords, PAIRS_ON_SCREEN);
+            pairsLeft = randomPairs.length;
+            pairsLeftDisplay.innerText = pairsLeft;
+
+            // 2. Создаем массив карточек (отдельно для RU и DE)
+            let cards = [];
+            randomPairs.forEach(pair => {
+                // Немецкая карточка
+                cards.push({ id: pair.id, text: pair.de, lang: 'de' });
+                // Русская карточка
+                cards.push({ id: pair.id, text: pair.ru, lang: 'ru' });
+            });
+
+            // 3. Перемешиваем карточки
+            cards = shuffleArray(cards);
+
+            // 4. Рисуем их на экране
+            cards.forEach(cardData => {
+                const cardEl = document.createElement('div');
+                cardEl.classList.add('card');
+                cardEl.innerText = cardData.text;
+                cardEl.dataset.id = cardData.id; // Храним ID пары
+
+                // Обработчик клика
+                cardEl.addEventListener('click', () => handleCardClick(cardEl));
+
+                gameBoard.appendChild(cardEl);
+            });
+        }
+
+        function handleCardClick(card) {
+            // Если уже угадана или выбрана, или уже выбрано 2 карты - игнорируем
+            if (card.classList.contains('matched') ||
+                card.classList.contains('selected') ||
+                selectedCards.length >= 2) {
+                return;
+            }
+
+            // Выделяем карту
+            card.classList.add('selected');
+            selectedCards.push(card);
+
+            // Если выбрано 2 карты - проверяем
+            if (selectedCards.length === 2) {
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            const card1 = selectedCards[0];
+            const card2 = selectedCards[1];
+
+            // Сравниваем ID пар
+            if (card1.dataset.id === card2.dataset.id) {
+                // Совпадение!
+                setTimeout(() => {
+                    card1.classList.remove('selected');
+                    card2.classList.remove('selected');
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    pairsLeft--;
+                    pairsLeftDisplay.innerText = pairsLeft;
+
+                    if (pairsLeft === 0) {
+                        alert("Отлично! Все пары найдены.");
+                    }
+                }, 300);
+            } else {
+                // Ошибка
+                setTimeout(() => {
+                    card1.classList.remove('selected');
+                    card2.classList.remove('selected');
+                }, 1000); // Ждем 1 секунду, чтобы игрок увидел ошибку
+            }
+
+            // Очищаем выбор (с небольшой задержкой, чтобы код успел отработать)
+            setTimeout(() => {
+                selectedCards = [];
+            }, 300);
+        }
+
+        // --- 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+
+        // Случайный выбор N элементов
+        function getRandomSubarray(arr, size) {
+            const shuffled = arr.slice(0);
+            let i = arr.length;
+            let temp, index;
+            while (i--) {
+                index = Math.floor(Math.random() * (i + 1));
+                temp = shuffled[index];
+                shuffled[index] = shuffled[i];
+                shuffled[i] = temp;
+            }
+            return shuffled.slice(0, size);
+        }
+
+        // Перемешивание массива (алгоритм Фишера-Йетса)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Запуск при загрузке
+        startGame();
+
+    </script>
+</body>
+</html>
