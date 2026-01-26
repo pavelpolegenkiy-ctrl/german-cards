@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Учим Немецкий</title>
     <style>
-        /* --- ВСТРОЕННЫЙ CSS --- */
-
+        /* --- CSS STYLES --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f8ff;
@@ -66,13 +65,43 @@
             cursor: pointer;
         }
 
-        /* --- ФЛЕШ-КАРТОЧКИ --- */
+        /* --- ПЕРЕКЛЮЧАТЕЛЬ СЛОЖНОСТИ --- */
+        .difficulty-switch {
+            display: flex;
+            background: #ddd;
+            border-radius: 20px;
+            padding: 4px;
+            margin-bottom: 20px;
+            width: 300px;
+        }
+
+        .diff-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #555;
+            transition: background 0.2s, color 0.2s;
+        }
+            /* Активная кнопка */
+            .diff-btn.active {
+                background: #0078d4;
+                color: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+
+        /* --- ИГРОВЫЕ ЭЛЕМЕНТЫ --- */
+        /* Карточки */
         .flashcard-scene {
             width: 95%;
             max-width: 700px;
             height: 300px;
             perspective: 1000px;
-            margin: 30px auto;
+            margin: 10px auto 30px auto;
             cursor: pointer;
         }
 
@@ -154,7 +183,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
-        /* --- ИГРА НАЙДИ ПАРУ --- */
+        /* Пары */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -187,7 +216,7 @@
                 opacity: 0;
             }
 
-        /* --- ИГРА АНАГРАММЫ (НОВОЕ) --- */
+        /* Анаграммы */
         .anagram-container {
             width: 100%;
             max-width: 600px;
@@ -201,8 +230,9 @@
             color: #555;
             margin-bottom: 20px;
             font-weight: bold;
+            text-align: center;
         }
-        /* Поле ответа */
+
         .anagram-answer-area {
             display: flex;
             flex-wrap: wrap;
@@ -216,14 +246,14 @@
             width: 100%;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
         }
-        /* Область букв */
+
         .anagram-letters-area {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
         }
-        /* Кнопка с буквой */
+
         .letter-tile {
             width: 50px;
             height: 50px;
@@ -247,14 +277,19 @@
                 box-shadow: none;
             }
 
-            /* Если буква пробел */
             .letter-tile.space-tile {
                 background-color: #eee;
                 border-color: #ccc;
                 box-shadow: 0 4px 0 #bbb;
             }
 
-        /* Адаптив */
+        /* Сообщение если список пуст */
+        .empty-message {
+            color: #888;
+            font-style: italic;
+            margin-top: 20px;
+        }
+
         @media (min-width: 600px) {
             .grid-container {
                 grid-template-columns: repeat(4, 1fr);
@@ -293,101 +328,98 @@
 </head>
 <body>
 
-    <h1 id="main-title">Меню</h1>
+    <h1 id="main-title">Темы</h1>
 
-    <div id="mode-screen" class="menu-container">
-        <button class="menu-btn" onclick="selectMode('flashcards')">📖 Учить слова</button>
-        <button class="menu-btn" onclick="selectMode('match')">🎮 Играть (Пары)</button>
-        <button class="menu-btn" onclick="selectMode('anagram')">🔠 Анаграммы</button>
+    <div id="topic-screen" class="menu-container"></div>
+
+    <div id="mode-screen" class="menu-container hidden">
+        <button class="menu-btn" onclick="startGame('flashcards')">📖 Карточки</button>
+        <button class="menu-btn" onclick="startGame('match')">🎮 Найди пару</button>
+        <button class="menu-btn" onclick="startGame('anagram')">🔠 Анаграммы</button>
+        <button class="back-btn" onclick="goHome()">Назад к темам</button>
     </div>
 
-    <div id="topic-screen" class="menu-container hidden"></div>
+    <div id="game-container" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
 
-    <div id="flashcard-screen" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
-        <div class="flashcard-scene" onclick="flipCard()">
-            <div class="flashcard-inner" id="flash-card-element">
-                <div class="flashcard-front">
-                    <span id="flash-text-de">DE</span>
-                    <div class="hint-text">(Нажми)</div>
-                </div>
-                <div class="flashcard-back">
-                    <span id="flash-text-ru">RU</span>
+        <div class="difficulty-switch">
+            <button id="btn-simple" class="diff-btn active" onclick="setDifficulty('simple')">Простые</button>
+            <button id="btn-hard" class="diff-btn" onclick="setDifficulty('hard')">Сложные</button>
+        </div>
+
+        <div id="flashcard-area" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+            <div class="flashcard-scene" onclick="flipCard()">
+                <div class="flashcard-inner" id="flash-card-element">
+                    <div class="flashcard-front"><span id="flash-text-de">DE</span><div class="hint-text">(Нажми)</div></div>
+                    <div class="flashcard-back"><span id="flash-text-ru">RU</span></div>
                 </div>
             </div>
+            <div class="flash-controls">
+                <button class="nav-btn" onclick="prevCard()">←</button>
+                <button class="nav-btn" onclick="nextCard()">→</button>
+            </div>
         </div>
-        <div class="flash-controls">
-            <button class="nav-btn" onclick="prevCard()">←</button>
-            <button class="nav-btn" onclick="nextCard()">→</button>
+
+        <div id="match-area" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+            <div style="margin-bottom:15px; font-size:1.2rem;">Осталось пар: <span id="pairs-left">0</span></div>
+            <div class="grid-container" id="match-board"></div>
         </div>
-        <button class="back-btn" onclick="goHome()">В меню</button>
-    </div>
 
-    <div id="match-screen" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
-        <div style="margin-bottom:15px; font-size:1.2rem;">Осталось пар: <span id="pairs-left">0</span></div>
-        <div class="grid-container" id="match-board"></div>
-        <button class="back-btn" onclick="goHome()">В меню</button>
-    </div>
+        <div id="anagram-area" class="hidden anagram-container">
+            <div style="font-size:1rem; color:#888; margin-bottom:5px;">Собери слово:</div>
+            <div id="anagram-hint-text" class="anagram-hint">...</div>
+            <div id="anagram-answer" class="anagram-answer-area"></div>
+            <div id="anagram-pool" class="anagram-letters-area"></div>
+        </div>
 
-    <div id="anagram-screen" class="hidden anagram-container">
-        <div style="font-size:1rem; color:#888; margin-bottom:5px;">Собери немецкое слово:</div>
-        <div id="anagram-hint-text" class="anagram-hint">РУССКОЕ СЛОВО</div>
+        <div id="no-words-msg" class="empty-message hidden">В этом разделе пока нет слов.</div>
 
-        <div id="anagram-answer" class="anagram-answer-area"></div>
-
-        <div id="anagram-pool" class="anagram-letters-area"></div>
-
-        <button class="back-btn" onclick="goHome()">В меню</button>
+        <button class="back-btn" onclick="backToModes()">Меню игры</button>
     </div>
 
     <script src="words.js"></script>
 
     <script>
-        // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
-        let currentMode = '';
-        let currentWordList = [];
+        // Состояние
+        let currentTopicKey = '';     // Какую тему выбрали (например "Цвета")
+        let currentDifficulty = 'simple'; // 'simple' или 'hard'
+        let currentMode = '';         // 'flashcards', 'match', 'anagram'
+        let currentWordList = [];     // Текущий список слов (отфильтрованный)
 
-        // Переменные для Карточек
+        // DOM элементы
+        const titleEl = document.getElementById('main-title');
+        const topicScreen = document.getElementById('topic-screen');
+        const modeScreen = document.getElementById('mode-screen');
+        const gameContainer = document.getElementById('game-container');
+
+        const areaFlash = document.getElementById('flashcard-area');
+        const areaMatch = document.getElementById('match-area');
+        const areaAnagram = document.getElementById('anagram-area');
+        const noWordsMsg = document.getElementById('no-words-msg');
+
+        const btnSimple = document.getElementById('btn-simple');
+        const btnHard = document.getElementById('btn-hard');
+
+        // Элементы игр
+        const flashCardEl = document.getElementById('flash-card-element');
+        const textDe = document.getElementById('flash-text-de');
+        const textRu = document.getElementById('flash-text-ru');
         let currentCardIndex = 0;
 
-        // Переменные для Игры Пары
+        const matchBoard = document.getElementById('match-board');
+        const pairsLeftDisplay = document.getElementById('pairs-left');
         let selectedMatchCards = [];
         let pairsLeft = 0;
         const PAIRS_ON_SCREEN = 6;
 
-        // Переменные для Анаграмм
-        let currentAnagramIndex = 0;
-        let currentAnagramTarget = ""; // Слово, которое ищем (DE)
-        let currentAnagramBuilt = [];  // Буквы, которые уже нажали
-
-        // ЭЛЕМЕНТЫ DOM
-        const titleEl = document.getElementById('main-title');
-        const modeScreen = document.getElementById('mode-screen');
-        const topicScreen = document.getElementById('topic-screen');
-
-        const flashScreen = document.getElementById('flashcard-screen');
-        const matchScreen = document.getElementById('match-screen');
-        const anagramScreen = document.getElementById('anagram-screen');
-
-        // Элементы карточек
-        const flashCardEl = document.getElementById('flash-card-element');
-        const textDe = document.getElementById('flash-text-de');
-        const textRu = document.getElementById('flash-text-ru');
-
-        // Элементы пар
-        const matchBoard = document.getElementById('match-board');
-        const pairsLeftDisplay = document.getElementById('pairs-left');
-
-        // Элементы анаграмм
         const anagramHint = document.getElementById('anagram-hint-text');
         const anagramAnswer = document.getElementById('anagram-answer');
         const anagramPool = document.getElementById('anagram-pool');
+        let currentAnagramIndex = 0;
+        let currentAnagramTarget = "";
+        let currentAnagramBuilt = [];
 
-        // --- НАВИГАЦИЯ ---
-        function selectMode(mode) {
-            currentMode = mode;
-            modeScreen.classList.add('hidden');
-            topicScreen.classList.remove('hidden');
-            titleEl.innerText = "Выберите тему";
+        // --- 1. ЗАПУСК И МЕНЮ ТЕМ ---
+        function init() {
             renderTopics();
         }
 
@@ -397,81 +429,152 @@
                 const btn = document.createElement('button');
                 btn.className = 'menu-btn';
                 btn.innerText = topic;
-                btn.onclick = () => startApp(topic);
+                btn.onclick = () => selectTopic(topic);
                 topicScreen.appendChild(btn);
             }
-            const back = document.createElement('button');
-            back.className = 'back-btn';
-            back.innerText = 'Назад';
-            back.onclick = goHome;
-            topicScreen.appendChild(back);
         }
 
-        function startApp(topic) {
-            currentWordList = wordCollections[topic]; // Загружаем слова
+        function selectTopic(topic) {
+            currentTopicKey = topic;
             topicScreen.classList.add('hidden');
-
-            if (currentMode === 'flashcards') startFlashcards();
-            else if (currentMode === 'match') startMatchGame();
-            else if (currentMode === 'anagram') startAnagramGame();
+            modeScreen.classList.remove('hidden');
+            titleEl.innerText = topic; // Пишем название темы в заголовке
         }
 
         function goHome() {
-            flashScreen.classList.add('hidden');
-            matchScreen.classList.add('hidden');
-            anagramScreen.classList.add('hidden');
-            topicScreen.classList.add('hidden');
-            modeScreen.classList.remove('hidden');
-            titleEl.innerText = "Меню";
+            modeScreen.classList.add('hidden');
+            gameContainer.classList.add('hidden');
+            topicScreen.classList.remove('hidden');
+            titleEl.innerText = "Темы";
+            resetGameUI();
         }
 
-        // --- 1. ЛОГИКА КАРТОЧЕК ---
-        function startFlashcards() {
-            flashScreen.classList.remove('hidden');
-            titleEl.innerText = "Учим слова";
+        function backToModes() {
+            gameContainer.classList.add('hidden');
+            modeScreen.classList.remove('hidden');
+            titleEl.innerText = currentTopicKey;
+            resetGameUI();
+        }
+
+        // --- 2. ВЫБОР ИГРЫ И СЛОЖНОСТИ ---
+
+        function startGame(mode) {
+            currentMode = mode;
+            modeScreen.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+
+            // Сбрасываем UI
+            areaFlash.classList.add('hidden');
+            areaMatch.classList.add('hidden');
+            areaAnagram.classList.add('hidden');
+            noWordsMsg.classList.add('hidden');
+
+            // Показываем нужную зону
+            if (mode === 'flashcards') areaFlash.classList.remove('hidden');
+            if (mode === 'match') areaMatch.classList.remove('hidden');
+            if (mode === 'anagram') areaAnagram.classList.remove('hidden');
+
+            // Загружаем данные (по умолчанию simple)
+            loadDataAndRun();
+        }
+
+        // Кнопки переключения сложности
+        function setDifficulty(diff) {
+            if (currentDifficulty === diff) return; // Уже выбрано
+            currentDifficulty = diff;
+
+            // Обновляем вид кнопок
+            if (diff === 'simple') {
+                btnSimple.classList.add('active');
+                btnHard.classList.remove('active');
+            } else {
+                btnSimple.classList.remove('active');
+                btnHard.classList.add('active');
+            }
+
+            // Перезапускаем игру с новым списком
+            loadDataAndRun();
+        }
+
+        function loadDataAndRun() {
+            // Берем список слов из объекта: Topic -> Difficulty
+            // Защита: если вдруг такого списка нет, берем пустой массив
+            if (wordCollections[currentTopicKey] && wordCollections[currentTopicKey][currentDifficulty]) {
+                currentWordList = wordCollections[currentTopicKey][currentDifficulty];
+            } else {
+                currentWordList = [];
+            }
+
+            if (currentWordList.length === 0) {
+                noWordsMsg.classList.remove('hidden');
+                // Скрываем игровые поля
+                areaFlash.classList.add('hidden');
+                areaMatch.classList.add('hidden');
+                areaAnagram.classList.add('hidden');
+                return;
+            } else {
+                noWordsMsg.classList.add('hidden');
+                // Возвращаем видимость текущего режима
+                if (currentMode === 'flashcards') areaFlash.classList.remove('hidden');
+                if (currentMode === 'match') areaMatch.classList.remove('hidden');
+                if (currentMode === 'anagram') areaAnagram.classList.remove('hidden');
+            }
+
+            // Запуск конкретной логики
+            if (currentMode === 'flashcards') runFlashcards();
+            if (currentMode === 'match') runMatch();
+            if (currentMode === 'anagram') runAnagram();
+        }
+
+        function resetGameUI() {
+            // Сброс при выходе в меню
+            areaFlash.classList.add('hidden');
+            areaMatch.classList.add('hidden');
+            areaAnagram.classList.add('hidden');
+        }
+
+        // --- ЛОГИКА ИГР: КАРТОЧКИ ---
+        function runFlashcards() {
             currentCardIndex = 0;
             updateFlashcard();
         }
-
         function updateFlashcard() {
             flashCardEl.classList.remove('is-flipped');
+            if (!currentWordList[currentCardIndex]) return;
             const word = currentWordList[currentCardIndex];
             setTimeout(() => {
                 textDe.innerText = word.de;
                 textRu.innerText = word.ru;
             }, 200);
         }
-
         function flipCard() { flashCardEl.classList.toggle('is-flipped'); }
         function nextCard() {
             if (currentCardIndex < currentWordList.length - 1) {
-                currentCardIndex++;
-                updateFlashcard();
+                currentCardIndex++; updateFlashcard();
             } else { alert("Конец списка!"); }
         }
         function prevCard() {
             if (currentCardIndex > 0) {
-                currentCardIndex--;
-                updateFlashcard();
+                currentCardIndex--; updateFlashcard();
             }
         }
 
-        // --- 2. ЛОГИКА ИГРЫ ПАРЫ ---
-        function startMatchGame() {
-            matchScreen.classList.remove('hidden');
-            titleEl.innerText = "Найди пару";
+        // --- ЛОГИКА ИГР: ПАРЫ ---
+        function runMatch() {
             matchBoard.innerHTML = '';
             selectedMatchCards = [];
             const count = Math.min(PAIRS_ON_SCREEN, currentWordList.length);
             const randomPairs = getRandomSubarray(currentWordList, count);
             pairsLeft = randomPairs.length;
             pairsLeftDisplay.innerText = pairsLeft;
+
             let cards = [];
             randomPairs.forEach(p => {
                 cards.push({ id: p.id, text: p.de });
                 cards.push({ id: p.id, text: p.ru });
             });
             cards = shuffleArray(cards);
+
             cards.forEach(c => {
                 const el = document.createElement('div');
                 el.className = 'game-card';
@@ -481,20 +584,17 @@
                 matchBoard.appendChild(el);
             });
         }
-
         function handleMatchClick(card) {
             if (card.classList.contains('matched') || card.classList.contains('selected') || selectedMatchCards.length >= 2) return;
             card.classList.add('selected');
             selectedMatchCards.push(card);
             if (selectedMatchCards.length === 2) {
-                const c1 = selectedMatchCards[0];
-                const c2 = selectedMatchCards[1];
+                const c1 = selectedMatchCards[0]; const c2 = selectedMatchCards[1];
                 if (c1.dataset.id === c2.dataset.id) {
                     setTimeout(() => {
                         c1.classList.remove('selected'); c2.classList.remove('selected');
                         c1.classList.add('matched'); c2.classList.add('matched');
-                        pairsLeft--;
-                        pairsLeftDisplay.innerText = pairsLeft;
+                        pairsLeft--; pairsLeftDisplay.innerText = pairsLeft;
                         if (pairsLeft === 0) setTimeout(() => alert("Победа!"), 300);
                     }, 300);
                 } else {
@@ -504,87 +604,63 @@
             }
         }
 
-        // --- 3. ЛОГИКА АНАГРАММ (НОВАЯ) ---
-        function startAnagramGame() {
-            anagramScreen.classList.remove('hidden');
-            titleEl.innerText = "Собери слово";
+        // --- ЛОГИКА ИГР: АНАГРАММЫ ---
+        function runAnagram() {
             currentAnagramIndex = 0;
-            // Перемешаем порядок слов, чтобы было интересно
-            currentWordList = shuffleArray(currentWordList.slice());
+            // Копируем и мешаем список
+            // Важно: работаем с копией списка, чтобы не портить оригинал
+            let listCopy = currentWordList.slice();
+            listCopy = shuffleArray(listCopy);
+
+            // Внимание: чтобы работать с runAnagramRound, нужно сохранить перемешанный список глобально или передать
+            // Для простоты используем глобальную переменную currentWordList, но мы ее не должны портить
+            // Лучше создадим временную переменную для анаграмм
+            anagramSessionList = listCopy;
+
             loadAnagramRound();
         }
 
+        let anagramSessionList = [];
+
         function loadAnagramRound() {
-            // Очистка
-            anagramAnswer.innerHTML = '';
-            anagramPool.innerHTML = '';
-            currentAnagramBuilt = [];
-
-            if (currentAnagramIndex >= currentWordList.length) {
-                alert("Все слова собраны! Молодец!");
-                goHome();
-                return;
+            anagramAnswer.innerHTML = ''; anagramPool.innerHTML = ''; currentAnagramBuilt = [];
+            if (currentAnagramIndex >= anagramSessionList.length) {
+                alert("Все слова собраны!"); return;
             }
-
-            const wordObj = currentWordList[currentAnagramIndex];
-            currentAnagramTarget = wordObj.de; // Целевое слово: "der Hund"
-            anagramHint.innerText = wordObj.ru; // Подсказка: "Собака"
-
-            // Разбиваем слово на буквы и перемешиваем
+            const wordObj = anagramSessionList[currentAnagramIndex];
+            currentAnagramTarget = wordObj.de;
+            anagramHint.innerText = wordObj.ru;
             let letters = currentAnagramTarget.split('');
             letters = shuffleArray(letters);
-
-            // Создаем кнопки с буквами
-            letters.forEach((char, index) => {
-                // Создаем кнопку
+            letters.forEach((char) => {
                 const btn = createLetterButton(char);
-                // При клике: переносим в поле ответа
                 btn.onclick = () => moveLetterToAnswer(btn, char);
                 anagramPool.appendChild(btn);
             });
         }
-
         function createLetterButton(char) {
             const btn = document.createElement('div');
             btn.className = 'letter-tile';
-            if (char === ' ') {
-                btn.classList.add('space-tile');
-                btn.innerHTML = '&nbsp;'; // Визуально пробел
-            } else {
-                btn.innerText = char;
-            }
+            if (char === ' ') { btn.classList.add('space-tile'); btn.innerHTML = '&nbsp;'; }
+            else { btn.innerText = char; }
             return btn;
         }
-
         function moveLetterToAnswer(btn, char) {
-            // Убираем из пула
             if (btn.parentNode === anagramPool) {
-                anagramPool.removeChild(btn);
-                anagramAnswer.appendChild(btn);
-                currentAnagramBuilt.push(char); // Запоминаем букву
-
-                // Проверяем победу
-                checkAnagramWin();
-            }
-            // Если кликнули в поле ответа - возвращаем назад
-            else {
-                anagramAnswer.removeChild(btn);
-                anagramPool.appendChild(btn);
-                // Удаляем первую попавшуюся такую букву из собранного массива (с конца)
+                anagramPool.removeChild(btn); anagramAnswer.appendChild(btn);
+                currentAnagramBuilt.push(char); checkAnagramWin();
+            } else {
+                anagramAnswer.removeChild(btn); anagramPool.appendChild(btn);
                 const idx = currentAnagramBuilt.lastIndexOf(char);
                 if (idx > -1) currentAnagramBuilt.splice(idx, 1);
             }
         }
-
         function checkAnagramWin() {
-            const currentString = currentAnagramBuilt.join('');
-            if (currentString === currentAnagramTarget) {
-                // Победа!
-                anagramAnswer.style.backgroundColor = '#90ee90'; // Зеленая вспышка
+            if (currentAnagramBuilt.join('') === currentAnagramTarget) {
+                anagramAnswer.style.backgroundColor = '#90ee90';
                 setTimeout(() => {
                     anagramAnswer.style.backgroundColor = 'white';
-                    currentAnagramIndex++;
-                    loadAnagramRound();
+                    currentAnagramIndex++; loadAnagramRound();
                 }, 800);
             }
         }
@@ -593,22 +669,17 @@
         function getRandomSubarray(arr, size) {
             const shuffled = arr.slice(0);
             let i = arr.length, temp, index;
-            while (i--) {
-                index = Math.floor(Math.random() * (i + 1));
-                temp = shuffled[index];
-                shuffled[index] = shuffled[i];
-                shuffled[i] = temp;
-            }
+            while (i--) { index = Math.floor(Math.random() * (i + 1)); temp = shuffled[index]; shuffled[index] = shuffled[i]; shuffled[i] = temp; }
             return shuffled.slice(0, size);
         }
-
         function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
+            for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[array[i], array[j]] = [array[j], array[i]]; }
             return array;
         }
+
+        // Старт
+        init();
+
     </script>
 </body>
 </html>
