@@ -4,70 +4,123 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deutsch Тренажёр</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* --- БАЗОВЫЕ СТИЛИ --- */
-        body { font-family: 'Segoe UI', sans-serif; background-color: #1b5e20; color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .main-layout { display: flex; gap: 15px; justify-content: center; width: 100%; flex-wrap: wrap; margin-top: 10px; }
-        .side-panel, .center-panel { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .side-panel { width: 220px; }
-        .center-panel { flex: 1; max-width: 550px; min-width: 320px; }
-        .hidden { display: none !important; }
-        h1 { text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin: 10px 0; }
-        h3 { border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; text-align: center; margin-top: 0; }
-        
-        /* Счетчик прогресса */
-        .progress-counter { background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; color: #a5d6a7; border: 1px solid #43a047; }
+        /* --- ПЕРЕМЕННЫЕ ЦВЕТОВ (Для переключения тем) --- */
+        :root {
+            --bg-color: #1b5e20;
+            --panel-bg: rgba(255, 255, 255, 0.1);
+            --text-color: white;
+            --btn-bg: #43a047;
+            --btn-border: #2e7d32;
+            --card-front-bg: white;
+            --card-text: #1b5e20;
+        }
 
-        .menu-btn { background-color: #43a047; color: white; border: 2px solid #2e7d32; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: 0.2s; }
-        .menu-btn:hover { background-color: #2e7d32; transform: translateY(-2px); }
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --panel-bg: rgba(255, 255, 255, 0.05);
+            --text-color: #e0e0e0;
+            --btn-bg: #2e7d32;
+            --btn-border: #1b5e20;
+            --card-front-bg: #1e1e1e;
+            --card-text: #81c784;
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            margin: 0; padding: 10px; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; transition: background 0.3s, color 0.3s;
+        }
+
+        /* Кнопка смены темы */
+        .theme-toggle {
+            position: absolute; top: 15px; right: 15px;
+            background: var(--panel-bg); border: 1px solid var(--text-color);
+            color: var(--text-color); padding: 8px 12px; border-radius: 20px;
+            cursor: pointer; font-size: 1.2rem; transition: 0.2s;
+        }
+
+        .main-layout { 
+            display: flex; gap: 15px; justify-content: center; width: 100%; flex-wrap: wrap; margin-top: 40px; 
+        }
+
+        .side-panel, .center-panel { 
+            background: var(--panel-bg); padding: 15px; border-radius: 12px; 
+            display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+        }
+        .side-panel { width: 220px; text-align: center; }
+        .center-panel { flex: 1; max-width: 550px; min-width: 320px; text-align: center; }
+        .hidden { display: none !important; }
         
+        h1 { text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin: 10px 0; }
+        h3 { border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-top: 0; }
+        
+        .menu-btn { background-color: var(--btn-bg); color: white; border: 2px solid var(--btn-border); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: 0.2s; width: 100%; }
+        .menu-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        
+        .progress-bar { background: rgba(255, 255, 255, 0.2); color: #a5d6a7; padding: 5px 15px; border-radius: 15px; font-weight: bold; margin-bottom: 15px; }
         .controls-row { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; }
+        
         .refresh-btn { background-color: #0288d1; border: 2px solid #01579b; flex: 1; }
         .clear-btn { background-color: #e67e22; border: 2px solid #d35400; flex: 1; }
         .hint-btn { background-color: #9b59b6; border: 2px solid #8e44ad; width: 100%; margin-top: 10px; }
         .back-btn { background: #558b2f; color: white; border: 1px solid rgba(255,255,255,0.4); padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
 
+        /* Карточки */
         .flashcard-scene { width: 100%; height: 280px; perspective: 1000px; cursor: pointer; margin-bottom: 15px; }
         .flashcard-inner { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
         .flashcard-inner.is-flipped { transform: rotateY(180deg); }
-        .flashcard-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; border-radius: 15px; font-size: 2.5rem; font-weight: bold; text-align: center; padding: 20px; box-sizing: border-box; }
-        .flashcard-front { background: white; color: #1b5e20; border: 5px solid #43a047; }
+        .flashcard-face { 
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+            display: flex; justify-content: center; align-items: center; border-radius: 15px; 
+            font-size: 2.5rem; font-weight: bold; text-align: center; padding: 20px; 
+            box-sizing: border-box; background: var(--card-front-bg); color: var(--card-text); border: 5px solid #43a047;
+        }
         .flashcard-back { background: #43a047; color: white; transform: rotateY(180deg); border: 5px solid #1b5e20; }
-        .audio-btn { position: absolute; top: 15px; right: 15px; width: 50px; height: 50px; border-radius: 50%; border: 1px solid #43a047; background: #f1f8e9; cursor: pointer; font-size: 1.5rem; }
+        .audio-btn { position: absolute; top: 15px; right: 15px; width: 50px; height: 50px; border-radius: 50%; border: 1px solid #43a047; background: #f1f8e9; cursor: pointer; font-size: 1.5rem; color: #1b5e20; }
 
-        .answer-pool { min-height: 60px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; transition: background 0.3s; border: 2px transparent solid; width: 100%; box-sizing: border-box; }
+        /* Анаграммы */
+        .answer-pool { min-height: 60px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; border: 2px transparent solid; width: 100%; }
         .answer-pool.correct { background-color: rgba(76, 175, 80, 0.5); border-color: #4CAF50; }
         .answer-pool.wrong { background-color: rgba(244, 67, 54, 0.5); border-color: #F44336; }
         .letter-tile { background: white; color: #1b5e20; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 0 #2e7d32; min-width: 35px; text-align: center; user-select: none; }
+        .letter-tile.space-tile { background-color: #f1f8e9; border: 1px dashed #43a047; }
 
+        /* Найди пару */
         .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
-        .game-card { background: white; color: #1b5e20; height: 90px; display: flex; justify-content: center; align-items: center; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.9rem; text-align: center; border: 3px solid #43a047; padding: 5px; }
+        .game-card { background: white; color: #1b5e20; height: 90px; display: flex; justify-content: center; align-items: center; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.9rem; text-align: center; border: 3px solid #43a047; }
         .game-card.selected { background: #fff9c4; border-color: #fbc02d; }
         .game-card.matched { visibility: hidden; }
     </style>
 </head>
 <body>
 
-    <h1>Deutsch Lernen Online</h1>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙</button>
+
+    <h1>Deutsch Тренажёр</h1>
 
     <div id="main-ui" class="main-layout">
         <div class="side-panel"><h3>🔥 ТОП-200</h3><div id="left-menu"></div></div>
-        <div class="center-panel"><h3>📖 Мои Темы</h3><div id="center-menu"></div></div>
+        <div class="center-panel"><h3>📖 Мои Темы</h3><div id="topic-screen" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;"></div></div>
         <div class="side-panel"><h3>🎓 Курс A1</h3><div id="right-menu"></div></div>
     </div>
 
-    <div id="mode-screen" class="center-panel hidden">
-        <h2 id="mode-title" style="text-align:center;">Тема</h2>
-        <button class="menu-btn" onclick="startGame('flashcards')">📖 Карточки</button>
-        <button class="menu-btn" onclick="startGame('match')">🎮 Найди пару</button>
-        <button class="menu-btn" onclick="startGame('anagram')">🔠 Анаграммы</button>
+    <div id="mode-screen" class="center-panel hidden" style="margin-top: 20px;">
+        <h2 id="mode-title">Тема</h2>
+        <button class="menu-btn" style="margin-bottom:10px" onclick="startGame('flashcards')">📖 Карточки</button>
+        <button class="menu-btn" style="margin-bottom:10px" onclick="startGame('match')">🎮 Найди пару</button>
+        <button class="menu-btn" style="margin-bottom:10px" onclick="startGame('anagram')">🔠 Анаграммы</button>
         <button class="back-btn" onclick="goHome()">🏠 К списку тем</button>
     </div>
 
-    <div id="game-container" class="center-panel hidden">
-        <div class="progress-counter" id="progress-text">Слово: 0 из 0</div>
+    <div id="game-container" class="center-panel hidden" style="margin-top: 20px;">
+        <div class="progress-bar" id="progress-text">Слово: 0 из 0</div>
 
-        <div id="flashcard-area" class="hidden">
+        <div id="flashcard-area" class="hidden" style="width:100%;">
             <div class="flashcard-scene" onclick="flipCard()">
                 <div class="flashcard-inner" id="flash-card-element">
                     <div class="flashcard-face flashcard-front">
@@ -83,14 +136,14 @@
             </div>
         </div>
 
-        <div id="match-area" class="hidden">
-            <div class="controls-row"><button class="menu-btn refresh-btn" onclick="runMatch()">🔄 Обновить слова</button></div>
+        <div id="match-area" class="hidden" style="width:100%;">
+            <div class="controls-row"><button class="menu-btn refresh-btn" onclick="runMatch()">🔄 Новые слова</button></div>
             <div id="match-grid" class="grid-container"></div>
         </div>
 
-        <div id="anagram-area" class="hidden" style="display:flex; flex-direction:column; gap:15px; align-items:center;">
+        <div id="anagram-area" class="hidden" style="display:flex; flex-direction:column; gap:15px; align-items:center; width:100%;">
             <div class="controls-row">
-                <button class="menu-btn refresh-btn" onclick="runAnagram()">🔄 Другое слово</button>
+                <button class="menu-btn refresh-btn" onclick="skipAnagram()">🔄 Другое слово</button>
                 <button class="menu-btn clear-btn" onclick="clearAnagram()">🧹 Стереть</button>
             </div>
             <div id="anagram-hint" style="font-size:1.8rem; font-weight:bold; color:#a5d6a7;"></div>
@@ -108,35 +161,67 @@
 
     <script>
         let currentTopic = '';
-        let currentWordList = []; // Перемешанный список для текущей сессии
+        let currentWordQueue = [];
+        let currentIndex = 0;
         let currentMode = '';
-        let currentCardIndex = 0;
         let selectedCards = [];
         let curAnag;
-        let solvedCount = 0; // Для счетчика
 
+        // --- ТЕМЫ ---
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('theme-btn');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                btn.innerText = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                btn.innerText = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Загрузка сохраненной темы
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-btn').innerText = '☀️';
+        }
+
+        // --- ПРАЗДНИК (КОНФЕТТИ) ---
+        function fireConfetti() {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#43a047', '#ffffff', '#0288d1', '#ffeb3b']
+            });
+        }
+
+        // --- ЗВУК ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playClickSound() {
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
-            oscillator.type = 'triangle'; oscillator.frequency.setValueAtTime(150, audioCtx.currentTime); 
-            oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.05);
-            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
-            oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.05);
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
         }
 
         function init() {
             renderMenu('left-menu', wordsLeft);
-            renderMenu('center-menu', wordCollections);
+            renderMenu('topic-screen', wordCollections);
             renderMenu('right-menu', wordsRight);
         }
 
         function renderMenu(id, source) {
-            const container = document.getElementById(id); container.innerHTML = '';
+            const container = document.getElementById(id);
             Object.keys(source).forEach(key => {
-                const btn = document.createElement('button'); btn.className = 'menu-btn'; btn.innerText = key;
+                const btn = document.createElement('button');
+                btn.className = 'menu-btn'; btn.innerText = key;
                 btn.onclick = () => { currentTopic = key; showModes(); };
                 container.appendChild(btn);
             });
@@ -151,59 +236,40 @@
         function startGame(mode) {
             currentMode = mode;
             const all = Object.assign({}, wordCollections, wordsLeft, wordsRight);
-            const rawList = all[currentTopic]?.simple || [];
-            
-            // ПЕРЕМЕШИВАЕМ СПИСОК ПРИ ЗАПУСКЕ
-            currentWordList = [...rawList].sort(() => 0.5 - Math.random());
-            currentCardIndex = 0;
-            solvedCount = 0;
-
-            if (currentWordList.length === 0) return alert("Нет слов!");
-
+            const rawList = (all[currentTopic]?.simple) ? all[currentTopic].simple : (all[currentTopic] || []);
+            currentWordQueue = [...rawList].sort(() => 0.5 - Math.random());
+            currentIndex = 0;
             document.getElementById('mode-screen').classList.add('hidden');
             document.getElementById('game-container').classList.remove('hidden');
-            
-            updateProgress();
-            
-            // Скрываем всё
-            ['flashcard-area', 'match-area', 'anagram-area'].forEach(a => document.getElementById(a).classList.add('hidden'));
-
-            if(mode === 'flashcards') { document.getElementById('flashcard-area').classList.remove('hidden'); updateCard(); }
-            if(mode === 'match') { document.getElementById('match-area').classList.remove('hidden'); runMatch(); }
-            if(mode === 'anagram') { document.getElementById('anagram-area').classList.remove('hidden'); runAnagram(); }
+            updateUI();
         }
 
-        function updateProgress() {
-            const total = currentWordList.length;
-            const displayIndex = (currentMode === 'flashcards') ? (currentCardIndex + 1) : solvedCount;
-            document.getElementById('progress-text').innerText = `Прогресс: ${displayIndex} из ${total}`;
+        function updateUI() {
+            document.getElementById('progress-text').innerText = `Слово: ${currentIndex + 1} из ${currentWordQueue.length}`;
+            ['flashcard-area', 'match-area', 'anagram-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            if (currentMode === 'flashcards') { document.getElementById('flashcard-area').classList.remove('hidden'); updateCard(); }
+            if (currentMode === 'match') { document.getElementById('match-area').classList.remove('hidden'); runMatch(); }
+            if (currentMode === 'anagram') { document.getElementById('anagram-area').classList.remove('hidden'); runAnagram(); }
         }
 
-        /* --- КАРТОЧКИ --- */
         function updateCard() {
-            const w = currentWordList[currentCardIndex];
+            const w = currentWordQueue[currentIndex];
             document.getElementById('flash-card-element').classList.remove('is-flipped');
-            setTimeout(() => {
-                document.getElementById('flash-text-de').innerText = w.de;
-                document.getElementById('flash-text-ru').innerText = w.ru;
-                updateProgress();
-            }, 200);
+            document.getElementById('flash-text-de').innerText = w.de;
+            document.getElementById('flash-text-ru').innerText = w.ru;
+            // Салют на последней карточке
+            if (currentIndex === currentWordQueue.length - 1) fireConfetti();
         }
         function flipCard() { playClickSound(); document.getElementById('flash-card-element').classList.toggle('is-flipped'); }
-        function nextCard() { playClickSound(); if(currentCardIndex < currentWordList.length - 1) { currentCardIndex++; updateCard(); } }
-        function prevCard() { playClickSound(); if(currentCardIndex > 0) { currentCardIndex--; updateCard(); } }
+        function nextCard() { if(currentIndex < currentWordQueue.length - 1) { currentIndex++; updateUI(); } }
+        function prevCard() { if(currentIndex > 0) { currentIndex--; updateUI(); } }
 
-        /* --- ПАРЫ --- */
-        let matchedPairsCount = 0;
         function runMatch() {
-            const grid = document.getElementById('match-grid'); grid.innerHTML = '';
-            selectedCards = []; matchedPairsCount = 0;
-            // Берем порцию из 6 слов (или сколько осталось)
-            let list = currentWordList.slice(solvedCount, solvedCount + 6);
-            if (list.length === 0) { solvedCount = 0; return runMatch(); } // Рестарт темы
-
+            const grid = document.getElementById('match-grid');
+            grid.innerHTML = ''; selectedCards = [];
+            let subList = currentWordQueue.slice(currentIndex, currentIndex + 6);
             let cards = [];
-            list.forEach(w => { cards.push({id:w.id, t:w.de}, {id:w.id, t:w.ru}); });
+            subList.forEach(w => { cards.push({id:w.id, t:w.de}, {id:w.id, t:w.ru}); });
             cards.sort(() => 0.5 - Math.random()).forEach(c => {
                 const d = document.createElement('div'); d.className = 'game-card'; d.innerText = c.t;
                 d.onclick = () => {
@@ -215,11 +281,10 @@
                                 setTimeout(() => { 
                                     selectedCards.forEach(x => x.d.classList.add('matched')); 
                                     selectedCards = []; 
-                                    matchedPairsCount++;
-                                    if(matchedPairsCount === list.length) {
-                                        solvedCount += list.length;
-                                        updateProgress();
-                                        setTimeout(runMatch, 600);
+                                    if(grid.querySelectorAll('.game-card:not(.matched)').length === 0) {
+                                        fireConfetti(); // Салют за завершенный раунд
+                                        currentIndex = Math.min(currentIndex + 6, currentWordQueue.length - 1);
+                                        updateUI();
                                     }
                                 }, 400);
                             } else {
@@ -230,44 +295,45 @@
                 };
                 grid.appendChild(d);
             });
-            updateProgress();
         }
 
-        /* --- АНАГРАММЫ --- */
         function runAnagram() {
-            if (solvedCount >= currentWordList.length) solvedCount = 0; // Зацикливание темы
-            curAnag = currentWordList[solvedCount];
-            const lp = document.getElementById('letter-pool'); 
-            const ap = document.getElementById('answer-pool');
+            curAnag = currentWordQueue[currentIndex];
+            const lp = document.getElementById('letter-pool'); const ap = document.getElementById('answer-pool');
             document.getElementById('anagram-hint').innerText = curAnag.ru;
-            lp.innerHTML = ''; ap.innerHTML = '';
-            ap.classList.remove('correct', 'wrong');
-            
+            lp.innerHTML = ''; ap.innerHTML = ''; ap.classList.remove('correct', 'wrong');
             curAnag.de.split('').sort(() => 0.5 - Math.random()).forEach(l => {
-                const tile = document.createElement('div'); tile.className = 'letter-tile'; tile.innerText = l;
+                const tile = createTile(l);
                 tile.onclick = () => {
                     playClickSound();
-                    if(tile.parentElement === lp) ap.appendChild(tile); else lp.appendChild(tile);
+                    if(ap.classList.contains('correct')) return;
+                    tile.parentElement === lp ? ap.appendChild(tile) : lp.appendChild(tile);
                     checkAnagram();
                 };
                 lp.appendChild(tile);
             });
-            updateProgress();
         }
 
-        function clearAnagram() {
-            playClickSound();
-            const lp = document.getElementById('letter-pool'); const ap = document.getElementById('answer-pool');
-            ap.classList.remove('wrong');
-            while (ap.firstChild) { lp.appendChild(ap.firstChild); }
+        function createTile(char) {
+            const t = document.createElement('div'); t.className = 'letter-tile';
+            if(char === ' ') { t.innerHTML = '&nbsp;'; t.classList.add('space-tile'); t.dataset.char = ' '; }
+            else { t.innerText = char; t.dataset.char = char; }
+            return t;
         }
 
+        function clearAnagram() { 
+            if(document.getElementById('answer-pool').classList.contains('correct')) return;
+            playClickSound(); 
+            const lp = document.getElementById('letter-pool'); const ap = document.getElementById('answer-pool'); 
+            ap.classList.remove('wrong'); Array.from(ap.children).forEach(t => lp.appendChild(t)); 
+        }
+        
         function solveAnagram() {
             playClickSound();
             const ap = document.getElementById('answer-pool'); const lp = document.getElementById('letter-pool');
             ap.innerHTML = ''; lp.innerHTML = '';
             curAnag.de.split('').forEach(char => {
-                const tile = document.createElement('div'); tile.className = 'letter-tile'; tile.innerText = char;
+                const tile = createTile(char);
                 ap.appendChild(tile);
             });
             checkAnagram();
@@ -276,25 +342,20 @@
         function checkAnagram() {
             const ap = document.getElementById('answer-pool'); const lp = document.getElementById('letter-pool');
             ap.classList.remove('wrong');
-            const currentStr = Array.from(ap.children).map(c => c.innerText).join('');
+            const currentStr = Array.from(ap.children).map(c => c.dataset.char).join('');
             if (lp.children.length === 0) {
                 if (currentStr === curAnag.de) {
                     ap.classList.add('correct');
-                    solvedCount++;
+                    if (currentIndex === currentWordQueue.length - 1) fireConfetti(); // Салют в конце темы
                     const u = new SpeechSynthesisUtterance(curAnag.de); u.lang = 'de-DE'; window.speechSynthesis.speak(u);
-                    setTimeout(() => { runAnagram(); }, 1200);
-                } else { ap.classList.add('wrong'); }
+                } else ap.classList.add('wrong');
             }
         }
 
-        function speakText() {
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(document.getElementById('flash-text-de').innerText);
-            u.lang = 'de-DE'; u.rate = 0.9; window.speechSynthesis.speak(u);
-        }
-
-        function goHome() { document.getElementById('mode-screen').classList.add('hidden'); document.getElementById('main-ui').classList.remove('hidden'); }
+        function skipAnagram() { playClickSound(); if(currentIndex < currentWordQueue.length - 1) { currentIndex++; updateUI(); } else { alert("Тема пройдена!"); goHome(); } }
+        function goHome() { location.reload(); }
         function backToModes() { document.getElementById('game-container').classList.add('hidden'); document.getElementById('mode-screen').classList.remove('hidden'); }
+        function speakText() { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(document.getElementById('flash-text-de').innerText); u.lang = 'de-DE'; window.speechSynthesis.speak(u); }
 
         init();
     </script>
