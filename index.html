@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deutsch Тренажёр</title>
+    <title>Deutsch Тренажёр v1.1.0</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -26,121 +26,55 @@
             --card-text: #81c784;
         }
 
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background-color: var(--bg-color); 
-            color: var(--text-color); 
-            margin: 0; padding: 10px; 
-            display: flex; flex-direction: column; align-items: center; 
-            min-height: 100vh; transition: 0.3s;
-        }
-
-        .theme-toggle {
-            position: absolute; top: 15px; right: 15px;
-            background: var(--panel-bg); border: 1px solid var(--text-color);
-            color: var(--text-color); padding: 8px 12px; border-radius: 20px;
-            cursor: pointer; font-size: 1.2rem; z-index: 100;
-        }
-
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; transition: 0.3s; }
+        .theme-toggle { position: absolute; top: 15px; right: 15px; background: var(--panel-bg); border: 1px solid var(--text-color); color: var(--text-color); padding: 8px 12px; border-radius: 20px; cursor: pointer; font-size: 1.2rem; z-index: 100; }
         h1 { text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin: 10px 0; }
 
-        .main-layout { 
-            display: flex; gap: 15px; justify-content: center; width: 100%; max-width: 1200px; flex-wrap: wrap; margin-top: 20px;
-        }
-
-        .side-panel, .center-panel { 
-            background: var(--panel-bg); padding: 15px; border-radius: 12px; 
-            display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center;
-        }
+        .main-layout { display: flex; gap: 15px; justify-content: center; width: 100%; max-width: 1200px; flex-wrap: wrap; margin-top: 20px; }
+        .side-panel, .center-panel { background: var(--panel-bg); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center; }
         .side-panel { width: 220px; }
         .center-panel { flex: 1; max-width: 550px; min-width: 320px; }
         .hidden { display: none !important; }
 
-        .menu-btn { 
-            background-color: var(--btn-bg); color: white; border: 2px solid var(--btn-border); 
-            padding: 12px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: 0.2s; width: 100%;
-        }
+        .menu-btn { background-color: var(--btn-bg); color: white; border: 2px solid var(--btn-border); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: 0.2s; width: 100%; margin-bottom: 10px; }
         .menu-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
-        .mode-screen-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            max-width: 1100px;
-            margin-top: 20px;
-            gap: 20px;
-        }
-
-        .words-column {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 15px;
-            height: 450px;
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            color: #a5d6a7;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .word-item {
-            height: 35px;
-            line-height: 35px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 1.1rem;
-        }
-
+        .mode-screen-wrapper { display: flex; justify-content: center; align-items: center; width: 100%; max-width: 1100px; margin-top: 20px; gap: 20px; }
+        .words-column { background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 15px; height: 450px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; color: #a5d6a7; font-weight: bold; text-align: center; }
+        .word-item { height: 35px; line-height: 35px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1.1rem; }
         .mode-buttons-box { width: 300px; flex-shrink: 0; }
-        .progress-bar { background: rgba(255, 255, 255, 0.2); color: #a5d6a7; padding: 5px 15px; border-radius: 15px; font-weight: bold; margin-bottom: 15px; }
-        
-        .controls-row { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; }
-        .refresh-btn { background-color: #0288d1; border: 2px solid #01579b; flex: 1; }
-        .clear-btn { background-color: #e67e22; border: 2px solid #d35400; flex: 1; }
 
-        /* Найди пару */
-        .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
-        .game-card { 
-            background: white; color: #1b5e20; height: 90px; display: flex; 
-            justify-content: center; align-items: center; border-radius: 10px; 
-            cursor: pointer; font-weight: bold; font-size: 0.9rem; text-align: center; 
-            border: 3px solid #43a047;
-        }
-        .game-card.selected { background-color: #fff9c4 !important; border-color: #fbc02d !important; }
-        .game-card.matched { visibility: hidden; }
+        .progress-bar { background: rgba(255, 255, 255, 0.2); color: #a5d6a7; padding: 5px 15px; border-radius: 15px; font-weight: bold; margin-bottom: 15px; }
+        .back-btn { background: #558b2f; color: white; border: 1px solid rgba(255,255,255,0.4); padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
+
+        /* Виселица */
+        .hangman-drawing { font-family: monospace; font-size: 1.2rem; line-height: 1.2; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 15px; white-space: pre; color: #ffeb3b; }
+        .hangman-word { font-size: 2rem; letter-spacing: 0.5rem; margin: 20px 0; font-weight: bold; color: white; text-transform: uppercase; }
+        .keyboard { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; max-width: 450px; }
+        .key { background: white; color: #1b5e20; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; min-width: 35px; }
+        .key:disabled { background: #555; color: #999; cursor: not-allowed; }
 
         /* Карточки */
         .flashcard-scene { width: 100%; height: 280px; perspective: 1000px; cursor: pointer; margin-bottom: 15px; }
         .flashcard-inner { width: 100%; height: 100%; position: relative; transition: 0.6s; transform-style: preserve-3d; }
         .flashcard-inner.is-flipped { transform: rotateY(180deg); }
-        .flashcard-face { 
-            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; 
-            justify-content: center; align-items: center; border-radius: 15px; font-size: 2.5rem; 
-            font-weight: bold; text-align: center; padding: 20px; box-sizing: border-box; 
-            background: var(--card-front-bg); color: var(--card-text); border: 5px solid #43a047;
-        }
+        .flashcard-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; border-radius: 15px; font-size: 2.5rem; font-weight: bold; text-align: center; padding: 20px; box-sizing: border-box; background: var(--card-front-bg); color: var(--card-text); border: 5px solid #43a047; }
         .flashcard-back { background: #43a047; color: white; transform: rotateY(180deg); border: 5px solid #1b5e20; }
         .audio-btn { position: absolute; top: 15px; right: 15px; width: 50px; height: 50px; border-radius: 50%; border: 1px solid #43a047; background: #f1f8e9; cursor: pointer; font-size: 1.5rem; color: #1b5e20; }
+
+        /* Найди пару */
+        .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+        .game-card { background: white; color: #1b5e20; height: 90px; display: flex; justify-content: center; align-items: center; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.9rem; text-align: center; border: 3px solid #43a047; }
+        .game-card.selected { background-color: #fff9c4 !important; border-color: #fbc02d !important; }
+        .game-card.matched { visibility: hidden; }
 
         /* Анаграммы */
         .answer-pool { min-height: 60px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; border: 2px transparent solid; width: 100%; box-sizing: border-box; }
         .answer-pool.correct { background-color: rgba(76, 175, 80, 0.5); border-color: #4CAF50; }
         .answer-pool.wrong { background-color: rgba(244, 67, 54, 0.5); border-color: #F44336; }
         .letter-tile { background: white; color: #1b5e20; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 0 #2e7d32; min-width: 35px; text-align: center; user-select: none; }
-        .letter-tile.space-tile { background-color: #f1f8e9; border: 1px dashed #43a047; }
 
-        .back-btn { background: #558b2f; color: white; border: 1px solid rgba(255,255,255,0.4); padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
-
-        @media (max-width: 800px) {
-            .mode-screen-wrapper { flex-direction: column; }
-            .words-column { height: 150px; width: 95%; }
-            .mode-buttons-box { width: 95%; }
-        }
+        @media (max-width: 800px) { .mode-screen-wrapper { flex-direction: column; } .words-column { height: 150px; width: 95%; } .mode-buttons-box { width: 95%; } }
     </style>
 </head>
 <body>
@@ -155,13 +89,15 @@
     </div>
 
     <div id="mode-screen" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-        <h2 id="mode-title" style="text-align:center;">Тема</h2>
+        <h2 id="mode-title">Тема</h2>
         <div class="mode-screen-wrapper">
             <div class="words-column" id="preview-left"></div>
             <div class="center-panel mode-buttons-box">
-                <button class="menu-btn" style="margin-bottom:10px" onclick="startGame('flashcards')">📖 Карточки</button>
-                <button class="menu-btn" style="margin-bottom:10px" onclick="startGame('match')">🎮 Найди пару</button>
-                <button class="menu-btn" style="margin-bottom:10px" onclick="startGame('anagram')">🔠 Анаграммы</button>
+                <button class="menu-btn" onclick="startGame('flashcards')">📖 Карточки</button>
+                <button class="menu-btn" onclick="startGame('match')">🎮 Найди пару</button>
+                <button class="menu-btn" onclick="startGame('anagram')">🔠 Анаграммы</button>
+                <button class="menu-btn" onclick="startGame('hangman')">😵 Виселица</button>
+                <button class="menu-btn" style="background:#d32f2f; border-color:#b71c1c;" onclick="loadRemoteWord()">📡 Слово от друга</button>
                 <button class="back-btn" onclick="goHome()">🏠 К списку тем</button>
             </div>
             <div class="words-column" id="preview-right"></div>
@@ -171,7 +107,7 @@
     <div id="game-container" class="center-panel hidden" style="margin-top: 20px;">
         <div class="progress-bar" id="progress-text">Слово: 0 из 0</div>
         
-        <div id="flashcard-area" class="hidden" style="width:100%;">
+        <div id="flashcard-area" class="hidden">
             <div class="flashcard-scene" onclick="flipCard()">
                 <div class="flashcard-inner" id="flash-card-element">
                     <div class="flashcard-face flashcard-front"><button class="audio-btn" onclick="event.stopPropagation(); speakText()">🔊</button><span id="flash-text-de"></span></div>
@@ -181,20 +117,28 @@
             <div style="display:flex; gap:15px;"><button class="menu-btn" style="flex:1" onclick="prevCard()">←</button><button class="menu-btn" style="flex:1" onclick="nextCard()">→</button></div>
         </div>
 
-        <div id="match-area" class="hidden" style="width:100%;">
-            <div class="controls-row"><button class="menu-btn refresh-btn" onclick="runMatch()">🔄 Новые слова</button></div>
+        <div id="match-area" class="hidden">
+            <div style="width:100%; margin-bottom:10px;"><button class="menu-btn" style="background:#0288d1;" onclick="runMatch()">🔄 Новые слова</button></div>
             <div id="match-grid" class="grid-container"></div>
         </div>
 
-        <div id="anagram-area" class="hidden" style="display:flex; flex-direction:column; gap:15px; align-items:center; width:100%;">
-            <div class="controls-row">
-                <button class="menu-btn refresh-btn" onclick="skipAnagram()">🔄 Другое слово</button>
-                <button class="menu-btn clear-btn" onclick="clearAnagram()">🧹 Стереть</button>
+        <div id="anagram-area" class="hidden">
+            <div style="display:flex; gap:10px; width:100%; margin-bottom:10px;">
+                <button class="menu-btn" style="background:#0288d1; flex:1;" onclick="skipWord()">🔄 Пропустить</button>
+                <button class="menu-btn" style="background:#e67e22; flex:1;" onclick="clearAnagram()">🧹 Стереть</button>
             </div>
-            <div id="anagram-hint" style="font-size:1.8rem; font-weight:bold; color:#a5d6a7;"></div>
+            <div id="anagram-hint" style="font-size:1.8rem; font-weight:bold; color:#a5d6a7; margin-bottom:10px;"></div>
             <div id="answer-pool" class="answer-pool"></div>
-            <div id="letter-pool" style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;"></div>
-            <button class="menu-btn hint-btn" style="background:#9b59b6; margin-top:10px;" onclick="solveAnagram()">💡 Показать ответ</button>
+            <div id="letter-pool" style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px;"></div>
+            <button class="menu-btn" style="background:#9b59b6; margin-top:10px;" onclick="solveAnagram()">💡 Показать ответ</button>
+        </div>
+
+        <div id="hangman-area" class="hidden" style="display:flex; flex-direction:column; align-items:center;">
+            <div class="hangman-drawing" id="hangman-visual"></div>
+            <div id="hangman-hint-ru" style="color:#a5d6a7; font-weight:bold;"></div>
+            <div class="hangman-word" id="hangman-display"></div>
+            <div class="keyboard" id="hangman-keyboard"></div>
+            <button class="menu-btn" style="background:#0288d1; margin-top:20px;" onclick="skipWord()">🔄 Другое слово</button>
         </div>
         
         <button class="back-btn" onclick="backToModes()">❌ Выйти</button>
@@ -205,23 +149,52 @@
     <script src="words-right.js"></script>
 
     <script>
-        let currentTopic = '', currentWordQueue = [], currentIndex = 0, currentMode = '', selectedCards = [], curAnag;
+        let currentTopic = '', currentWordQueue = [], currentIndex = 0, currentMode = '', selectedCards = [];
+        let curWord, hangmanErrors = 0, hangmanGuessed = [];
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const hangmanStages = [
+            `  +---+\n  |   |\n      |\n      |\n      |\n      |\n=========`,
+            `  +---+\n  |   |\n  O   |\n      |\n      |\n      |\n=========`,
+            `  +---+\n  |   |\n  O   |\n  |   |\n      |\n      |\n=========`,
+            `  +---+\n  |   |\n  O   |\n /|   |\n      |\n      |\n=========`,
+            `  +---+\n  |   |\n  O   |\n /|\\  |\n      |\n      |\n=========`,
+            `  +---+\n  |   |\n  O   |\n /|\\  |\n /    |\n      |\n=========`,
+            `  +---+\n  |   |\n  O   |\n /|\\  |\n / \\  |\n      |\n=========`
+        ];
+
         function playClickSound() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.type = 'triangle'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); 
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
             osc.start(); osc.stop(audioCtx.currentTime + 0.05);
         }
 
         function toggleTheme() {
             const b = document.body; const btn = document.getElementById('theme-btn');
-            if (b.getAttribute('data-theme') === 'dark') { b.removeAttribute('data-theme'); btn.innerText = '🌙'; localStorage.setItem('theme', 'light'); }
-            else { b.setAttribute('data-theme', 'dark'); btn.innerText = '☀️'; localStorage.setItem('theme', 'dark'); }
+            if (b.getAttribute('data-theme') === 'dark') { b.removeAttribute('data-theme'); btn.innerText = '🌙'; }
+            else { b.setAttribute('data-theme', 'dark'); btn.innerText = '☀️'; }
         }
-        if (localStorage.getItem('theme') === 'dark') { document.body.setAttribute('data-theme', 'dark'); document.getElementById('theme-btn').innerText = '☀️'; }
+
+        async function loadRemoteWord() {
+            // ВАЖНО: Замените на вашу RAW ссылку после создания файла remote_word.txt на GitHub
+            const rawUrl = 'https://raw.githubusercontent.com/ВАШ_ЛОГИН/ВАШ_РЕПО/main/remote_word.txt';
+            try {
+                const response = await fetch(rawUrl + '?t=' + Date.now());
+                if (!response.ok) throw new Error();
+                const text = await response.text();
+                const [de, ru] = text.trim().split(':');
+                if (de && ru) {
+                    currentWordQueue = [{ id: 999, de: de.trim(), ru: ru.trim() }];
+                    currentIndex = 0;
+                    currentMode = 'hangman';
+                    document.getElementById('mode-screen').classList.add('hidden');
+                    document.getElementById('game-container').classList.remove('hidden');
+                    updateUI();
+                }
+            } catch (e) { alert('Файл не найден или ошибка сети. Проверьте ссылку в коде.'); }
+        }
 
         function init() { renderMenu('left-menu', wordsLeft); renderMenu('topic-screen', wordCollections); renderMenu('right-menu', wordsRight); }
 
@@ -240,7 +213,7 @@
             const all = Object.assign({}, wordCollections, wordsLeft, wordsRight);
             const words = (all[currentTopic]?.simple || all[currentTopic] || []);
             const leftC = document.getElementById('preview-left'), rightC = document.getElementById('preview-right');
-            leftC.innerHTML = ''; rightC.innerHTML = '';
+            leftC.innerHTML = ''; ruC = ''; leftC.innerHTML = ''; rightC.innerHTML = '';
             const half = Math.ceil(words.length / 2);
             words.forEach((w, i) => {
                 const d = document.createElement('div'); d.className = 'word-item'; d.innerText = w.de;
@@ -261,19 +234,17 @@
 
         function updateUI() {
             document.getElementById('progress-text').innerText = `Слово: ${currentIndex + 1} из ${currentWordQueue.length}`;
-            ['flashcard-area', 'match-area', 'anagram-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['flashcard-area', 'match-area', 'anagram-area', 'hangman-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
             if (currentMode === 'flashcards') { document.getElementById('flashcard-area').classList.remove('hidden'); updateCard(); }
             if (currentMode === 'match') { document.getElementById('match-area').classList.remove('hidden'); runMatch(); }
             if (currentMode === 'anagram') { document.getElementById('anagram-area').classList.remove('hidden'); runAnagram(); }
+            if (currentMode === 'hangman') { document.getElementById('hangman-area').classList.remove('hidden'); runHangman(); }
         }
 
-        function updateCard() {
-            const w = currentWordQueue[currentIndex];
-            document.getElementById('flash-card-element').classList.remove('is-flipped');
-            document.getElementById('flash-text-de').innerText = w.de;
-            document.getElementById('flash-text-ru').innerText = w.ru;
-        }
+        function skipWord() { if(currentIndex < currentWordQueue.length - 1) { currentIndex++; updateUI(); } else { confetti({particleCount: 150}); goHome(); } }
 
+        /* ИГРЫ */
+        function updateCard() { const w = currentWordQueue[currentIndex]; document.getElementById('flash-card-element').classList.remove('is-flipped'); document.getElementById('flash-text-de').innerText = w.de; document.getElementById('flash-text-ru').innerText = w.ru; }
         function flipCard() { playClickSound(); document.getElementById('flash-card-element').classList.toggle('is-flipped'); }
         function nextCard() { if(currentIndex < currentWordQueue.length - 1) { currentIndex++; updateUI(); } }
         function prevCard() { if(currentIndex > 0) { currentIndex--; updateUI(); } }
@@ -284,93 +255,53 @@
             let cards = []; sub.forEach(w => { cards.push({id:w.id, t:w.de}, {id:w.id, t:w.ru}); });
             cards.sort(() => 0.5 - Math.random()).forEach(c => {
                 const d = document.createElement('div'); d.className = 'game-card'; d.innerText = c.t;
-                d.onclick = () => {
-                    playClickSound();
-                    if(selectedCards.length < 2 && !d.classList.contains('selected')) {
-                        d.classList.add('selected'); selectedCards.push({d, id:c.id});
-                        if(selectedCards.length === 2) {
-                            if(selectedCards[0].id === selectedCards[1].id) {
-                                setTimeout(() => { 
-                                    selectedCards.forEach(x => x.d.classList.add('matched')); selectedCards = []; 
-                                    if(grid.querySelectorAll('.game-card:not(.matched)').length === 0) {
-                                        confetti({particleCount: 100}); currentIndex = Math.min(currentIndex + 6, currentWordQueue.length - 1); updateUI();
-                                    }
-                                }, 400);
-                            } else { 
-                                setTimeout(() => { selectedCards.forEach(x => x.d.classList.remove('selected')); selectedCards = []; }, 700); 
-                            }
-                        }
-                    }
-                };
+                d.onclick = () => { playClickSound(); if(selectedCards.length < 2 && !d.classList.contains('selected')) { d.classList.add('selected'); selectedCards.push({d, id:c.id}); if(selectedCards.length === 2) { if(selectedCards[0].id === selectedCards[1].id) { setTimeout(() => { selectedCards.forEach(x => x.d.classList.add('matched')); selectedCards = []; if(grid.querySelectorAll('.game-card:not(.matched)').length === 0) { confetti({particleCount: 100}); currentIndex = Math.min(currentIndex + 6, currentWordQueue.length - 1); updateUI(); } }, 400); } else { setTimeout(() => { selectedCards.forEach(x => x.d.classList.remove('selected')); selectedCards = []; }, 700); } } } };
                 grid.appendChild(d);
             });
         }
 
-        /* --- ЛОГИКА АНАГРАММ --- */
         function runAnagram() {
-            curAnag = currentWordQueue[currentIndex];
+            curWord = currentWordQueue[currentIndex];
             const lp = document.getElementById('letter-pool'), ap = document.getElementById('answer-pool');
-            document.getElementById('anagram-hint').innerText = curAnag.ru;
+            document.getElementById('anagram-hint').innerText = curWord.ru;
             lp.innerHTML = ''; ap.innerHTML = ''; ap.classList.remove('correct', 'wrong');
-            curAnag.de.split('').sort(() => 0.5 - Math.random()).forEach(l => {
-                const t = createTile(l);
-                t.onclick = () => {
-                    playClickSound();
-                    if(ap.classList.contains('correct')) return;
-                    t.parentElement === lp ? ap.appendChild(t) : lp.appendChild(t);
-                    checkAnagram();
-                };
+            curWord.de.split('').sort(() => 0.5 - Math.random()).forEach(l => {
+                const t = document.createElement('div'); t.className = 'letter-tile'; t.innerText = l; t.dataset.char = l;
+                t.onclick = () => { playClickSound(); if(ap.classList.contains('correct')) return; t.parentElement === lp ? ap.appendChild(t) : lp.appendChild(t); checkAnagram(); };
                 lp.appendChild(t);
             });
         }
-
-        function createTile(char) {
-            const t = document.createElement('div'); t.className = 'letter-tile';
-            if(char === ' ') { t.innerHTML = '&nbsp;'; t.classList.add('space-tile'); t.dataset.char = ' '; }
-            else { t.innerText = char; t.dataset.char = char; }
-            return t;
-        }
-
-        /* --- ИСПРАВЛЕННАЯ КНОПКА СТЕРЕТЬ --- */
-        function clearAnagram() { 
-            const ap = document.getElementById('answer-pool');
-            const lp = document.getElementById('letter-pool');
-            if(ap.classList.contains('correct')) return; // Не стираем уже угаданное слово
-            
-            playClickSound(); 
-            ap.classList.remove('wrong'); 
-            
-            // Переносим все дочерние элементы из поля ответа обратно в пул
-            while(ap.firstChild) {
-                lp.appendChild(ap.firstChild);
-            }
-        }
-
-        function solveAnagram() {
-            playClickSound();
-            const ap = document.getElementById('answer-pool'), lp = document.getElementById('letter-pool');
-            ap.innerHTML = ''; lp.innerHTML = '';
-            curAnag.de.split('').forEach(char => {
-                const t = createTile(char);
-                ap.appendChild(t);
-            });
-            checkAnagram();
-        }
-
         function checkAnagram() {
             const ap = document.getElementById('answer-pool'), lp = document.getElementById('letter-pool');
-            ap.classList.remove('wrong');
             const currentStr = Array.from(ap.children).map(c => c.dataset.char).join('');
             if (lp.children.length === 0) {
-                if (currentStr === curAnag.de) {
-                    ap.classList.add('correct');
-                    if (currentIndex === currentWordQueue.length - 1) confetti({particleCount: 150});
-                    const u = new SpeechSynthesisUtterance(curAnag.de); u.lang = 'de-DE'; window.speechSynthesis.speak(u);
-                } else ap.classList.add('wrong');
+                if (currentStr === curWord.de) { ap.classList.add('correct'); const u = new SpeechSynthesisUtterance(curWord.de); u.lang = 'de-DE'; window.speechSynthesis.speak(u); setTimeout(skipWord, 1500); }
+                else ap.classList.add('wrong');
             }
         }
+        function clearAnagram() { playClickSound(); const lp = document.getElementById('letter-pool'), ap = document.getElementById('answer-pool'); ap.classList.remove('wrong'); while(ap.firstChild) lp.appendChild(ap.firstChild); }
+        function solveAnagram() { playClickSound(); const ap = document.getElementById('answer-pool'), lp = document.getElementById('letter-pool'); ap.innerHTML = ''; lp.innerHTML = ''; curWord.de.split('').forEach(char => { const t = document.createElement('div'); t.className = 'letter-tile'; t.innerText = char; t.dataset.char = char; ap.appendChild(t); }); checkAnagram(); }
 
-        function skipAnagram() { playClickSound(); if(currentIndex < currentWordQueue.length - 1) { currentIndex++; updateUI(); } else { alert("Тема пройдена!"); goHome(); } }
+        function runHangman() {
+            curWord = currentWordQueue[currentIndex]; hangmanErrors = 0; hangmanGuessed = [];
+            document.getElementById('hangman-hint-ru').innerText = `Перевод: ${curWord.ru}`;
+            document.getElementById('hangman-visual').innerText = hangmanStages[0];
+            renderHangmanWord(); renderHangmanKeyboard();
+        }
+        function renderHangmanWord() {
+            const display = curWord.de.split('').map(char => (char === ' ') ? '&nbsp;' : (hangmanGuessed.includes(char.toLowerCase()) ? char : '_')).join(' ');
+            document.getElementById('hangman-display').innerHTML = display;
+            if (!display.includes('_')) { confetti({particleCount: 100}); const u = new SpeechSynthesisUtterance(curWord.de); u.lang = 'de-DE'; window.speechSynthesis.speak(u); setTimeout(skipWord, 1500); }
+        }
+        function renderHangmanKeyboard() {
+            const kb = document.getElementById('hangman-keyboard'); kb.innerHTML = '';
+            "abcdefghijklmnopqrstuvwxyzäöüß".split("").forEach(l => {
+                const b = document.createElement('button'); b.className = 'key'; b.innerText = l;
+                b.onclick = () => { playClickSound(); b.disabled = true; if (curWord.de.toLowerCase().includes(l)) { hangmanGuessed.push(l); renderHangmanWord(); } else { hangmanErrors++; document.getElementById('hangman-visual').innerText = hangmanStages[Math.min(hangmanErrors, 6)]; if(hangmanErrors >= 6) { alert('Слово: ' + curWord.de); skipWord(); } } };
+                kb.appendChild(b);
+            });
+        }
+
         function goHome() { location.reload(); }
         function backToModes() { document.getElementById('game-container').classList.add('hidden'); document.getElementById('mode-screen').classList.remove('hidden'); }
         function speakText() { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(document.getElementById('flash-text-de').innerText); u.lang = 'de-DE'; window.speechSynthesis.speak(u); }
