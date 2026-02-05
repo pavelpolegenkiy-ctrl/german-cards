@@ -178,22 +178,21 @@
         }
 
         async function loadRemoteWord() {
-            // ВАЖНО: Замените на вашу RAW ссылку после создания файла remote_word.txt на GitHub
-            const rawUrl = 'https://raw.githubusercontent.com/ВАШ_ЛОГИН/ВАШ_РЕПО/main/remote_word.txt';
+            const rawUrl = 'https://raw.githubusercontent.com/pavelpolegenkiy-ctrl/german-cards/refs/heads/main/remote_word.txt';
             try {
                 const response = await fetch(rawUrl + '?t=' + Date.now());
                 if (!response.ok) throw new Error();
                 const text = await response.text();
                 const [de, ru] = text.trim().split(':');
                 if (de && ru) {
-                    currentWordQueue = [{ id: 999, de: de.trim(), ru: ru.trim() }];
+                    currentWordQueue = [{ id: 9999, de: de.trim(), ru: ru.trim() }];
                     currentIndex = 0;
                     currentMode = 'hangman';
                     document.getElementById('mode-screen').classList.add('hidden');
                     document.getElementById('game-container').classList.remove('hidden');
                     updateUI();
                 }
-            } catch (e) { alert('Файл не найден или ошибка сети. Проверьте ссылку в коде.'); }
+            } catch (e) { alert('Ошибка: Файл на GitHub не найден или неверный формат.'); }
         }
 
         function init() { renderMenu('left-menu', wordsLeft); renderMenu('topic-screen', wordCollections); renderMenu('right-menu', wordsRight); }
@@ -213,7 +212,7 @@
             const all = Object.assign({}, wordCollections, wordsLeft, wordsRight);
             const words = (all[currentTopic]?.simple || all[currentTopic] || []);
             const leftC = document.getElementById('preview-left'), rightC = document.getElementById('preview-right');
-            leftC.innerHTML = ''; ruC = ''; leftC.innerHTML = ''; rightC.innerHTML = '';
+            leftC.innerHTML = ''; rightC.innerHTML = '';
             const half = Math.ceil(words.length / 2);
             words.forEach((w, i) => {
                 const d = document.createElement('div'); d.className = 'word-item'; d.innerText = w.de;
@@ -243,7 +242,6 @@
 
         function skipWord() { if(currentIndex < currentWordQueue.length - 1) { currentIndex++; updateUI(); } else { confetti({particleCount: 150}); goHome(); } }
 
-        /* ИГРЫ */
         function updateCard() { const w = currentWordQueue[currentIndex]; document.getElementById('flash-card-element').classList.remove('is-flipped'); document.getElementById('flash-text-de').innerText = w.de; document.getElementById('flash-text-ru').innerText = w.ru; }
         function flipCard() { playClickSound(); document.getElementById('flash-card-element').classList.toggle('is-flipped'); }
         function nextCard() { if(currentIndex < currentWordQueue.length - 1) { currentIndex++; updateUI(); } }
