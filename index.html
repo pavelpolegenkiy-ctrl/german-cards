@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deutsch Тренажёр v1.2.0</title>
+    <title>Deutsch Тренажёр v1.3.1</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -74,6 +74,11 @@
         .answer-pool.wrong { background-color: rgba(244, 67, 54, 0.5); border-color: #F44336; }
         .letter-tile { background: white; color: #1b5e20; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 0 #2e7d32; min-width: 35px; text-align: center; user-select: none; }
 
+        footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); width: 100%; }
+        footer a { color: #a5d6a7; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        footer a:hover { color: white; text-shadow: 0 0 10px rgba(165, 214, 167, 0.5); }
+        [data-theme="dark"] footer { color: rgba(255, 255, 255, 0.3); }
+
         @media (max-width: 800px) { .mode-screen-wrapper { flex-direction: column; } .words-column { height: 150px; width: 95%; } .mode-buttons-box { width: 95%; } }
     </style>
 </head>
@@ -98,7 +103,7 @@
                 <button class="menu-btn" onclick="startGame('anagram')">🔠 Анаграммы</button>
                 <button class="menu-btn" onclick="startGame('hangman')">😵 Виселица</button>
                 
-                <button class="menu-btn" style="background:#4b13d3; border-color:#310c8f;" onclick="setCustomWord()">✍️ Загадать слово</button>
+                <button class="menu-btn" style="background:#4b13d3; border-color:#310c8f;" onclick="setCustomWord()">✍️ Загадать слово (здесь)</button>
                 <button class="menu-btn" style="background:#d32f2f; border-color:#b71c1c;" onclick="loadRemoteWord()">📡 Слово от друга</button>
                 
                 <button class="back-btn" onclick="goHome()">🏠 К списку тем</button>
@@ -147,6 +152,15 @@
         <button class="back-btn" onclick="backToModes()">❌ Выйти</button>
     </div>
 
+    <footer>
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; width: 80%; max-width: 600px; margin-left: auto; margin-right: auto;">
+        <p>
+            &copy; 2026 Pavel Polegenkiy. <br>
+            Разработано для изучения немецкого языка. 
+            <a href="https://github.com/pavelpolegenkiy-ctrl/german-cards" target="_blank">View on GitHub</a>
+        </p>
+    </footer>
+
     <script src="words.js"></script>
     <script src="words-left.js"></script>
     <script src="words-right.js"></script>
@@ -164,15 +178,6 @@
             `  +---+\n  |   |\n  O   |\n /|\\  |\n /    |\n      |\n=========`,
             `  +---+\n  |   |\n  O   |\n /|\\  |\n / \\  |\n      |\n=========`
         ];
-
-        function playClickSound() {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.type = 'triangle'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); 
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
-        }
 
         function toggleTheme() {
             const b = document.body; const btn = document.getElementById('theme-btn');
@@ -194,14 +199,12 @@
                     document.getElementById('game-container').classList.remove('hidden');
                     updateUI();
                 }
-            } catch (e) { alert('Ошибка загрузки с GitHub.'); }
+            } catch (e) { alert('Ошибка загрузки с GitHub. Проверьте файл remote_word.txt'); }
         }
 
         function setCustomWord() {
-            const de = prompt("Введите немецкое слово:");
-            if (!de) return;
-            const ru = prompt("Введите перевод:");
-            if (!ru) return;
+            const de = prompt("Введите немецкое слово:"); if (!de) return;
+            const ru = prompt("Введите перевод:"); if (!ru) return;
             currentWordQueue = [{ id: Date.now(), de: de.trim(), ru: ru.trim() }];
             currentIndex = 0; currentMode = 'hangman';
             document.getElementById('mode-screen').classList.add('hidden');
@@ -210,7 +213,6 @@
         }
 
         function init() { renderMenu('left-menu', wordsLeft); renderMenu('topic-screen', wordCollections); renderMenu('right-menu', wordsRight); }
-
         function renderMenu(id, src) {
             const container = document.getElementById(id); container.innerHTML = '';
             Object.keys(src).forEach(k => {
@@ -218,7 +220,6 @@
                 b.onclick = () => { currentTopic = k; showModes(); }; container.appendChild(b);
             });
         }
-
         function showModes() {
             document.getElementById('main-ui').classList.add('hidden');
             document.getElementById('mode-screen').classList.remove('hidden');
@@ -233,7 +234,6 @@
                 if (i < half) leftC.appendChild(d); else rightC.appendChild(d);
             });
         }
-
         function startGame(mode) {
             currentMode = mode;
             const all = Object.assign({}, wordCollections, wordsLeft, wordsRight);
@@ -244,7 +244,6 @@
             document.getElementById('game-container').classList.remove('hidden');
             updateUI();
         }
-
         function updateUI() {
             document.getElementById('progress-text').innerText = `Слово: ${currentIndex + 1} из ${currentWordQueue.length}`;
             ['flashcard-area', 'match-area', 'anagram-area', 'hangman-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
@@ -253,25 +252,21 @@
             if (currentMode === 'anagram') { document.getElementById('anagram-area').classList.remove('hidden'); runAnagram(); }
             if (currentMode === 'hangman') { document.getElementById('hangman-area').classList.remove('hidden'); runHangman(); }
         }
-
         function skipWord() { if(currentIndex < currentWordQueue.length - 1) { currentIndex++; updateUI(); } else { confetti({particleCount: 150}); goHome(); } }
-
         function updateCard() { const w = currentWordQueue[currentIndex]; document.getElementById('flash-card-element').classList.remove('is-flipped'); document.getElementById('flash-text-de').innerText = w.de; document.getElementById('flash-text-ru').innerText = w.ru; }
-        function flipCard() { playClickSound(); document.getElementById('flash-card-element').classList.toggle('is-flipped'); }
+        function flipCard() { document.getElementById('flash-card-element').classList.toggle('is-flipped'); }
         function nextCard() { if(currentIndex < currentWordQueue.length - 1) { currentIndex++; updateUI(); } }
         function prevCard() { if(currentIndex > 0) { currentIndex--; updateUI(); } }
-
         function runMatch() {
             const grid = document.getElementById('match-grid'); grid.innerHTML = ''; selectedCards = [];
             let sub = currentWordQueue.slice(currentIndex, currentIndex + 6);
             let cards = []; sub.forEach(w => { cards.push({id:w.id, t:w.de}, {id:w.id, t:w.ru}); });
             cards.sort(() => 0.5 - Math.random()).forEach(c => {
                 const d = document.createElement('div'); d.className = 'game-card'; d.innerText = c.t;
-                d.onclick = () => { playClickSound(); if(selectedCards.length < 2 && !d.classList.contains('selected')) { d.classList.add('selected'); selectedCards.push({d, id:c.id}); if(selectedCards.length === 2) { if(selectedCards[0].id === selectedCards[1].id) { setTimeout(() => { selectedCards.forEach(x => x.d.classList.add('matched')); selectedCards = []; if(grid.querySelectorAll('.game-card:not(.matched)').length === 0) { confetti({particleCount: 100}); currentIndex = Math.min(currentIndex + 6, currentWordQueue.length - 1); updateUI(); } }, 400); } else { setTimeout(() => { selectedCards.forEach(x => x.d.classList.remove('selected')); selectedCards = []; }, 700); } } } };
+                d.onclick = () => { if(selectedCards.length < 2 && !d.classList.contains('selected')) { d.classList.add('selected'); selectedCards.push({d, id:c.id}); if(selectedCards.length === 2) { if(selectedCards[0].id === selectedCards[1].id) { setTimeout(() => { selectedCards.forEach(x => x.d.classList.add('matched')); selectedCards = []; if(grid.querySelectorAll('.game-card:not(.matched)').length === 0) { confetti({particleCount: 100}); currentIndex = Math.min(currentIndex + 6, currentWordQueue.length - 1); updateUI(); } }, 400); } else { setTimeout(() => { selectedCards.forEach(x => x.d.classList.remove('selected')); selectedCards = []; }, 700); } } } };
                 grid.appendChild(d);
             });
         }
-
         function runAnagram() {
             curWord = currentWordQueue[currentIndex];
             const lp = document.getElementById('letter-pool'), ap = document.getElementById('answer-pool');
@@ -279,7 +274,7 @@
             lp.innerHTML = ''; ap.innerHTML = ''; ap.classList.remove('correct', 'wrong');
             curWord.de.split('').sort(() => 0.5 - Math.random()).forEach(l => {
                 const t = document.createElement('div'); t.className = 'letter-tile'; t.innerText = l; t.dataset.char = l;
-                t.onclick = () => { playClickSound(); if(ap.classList.contains('correct')) return; t.parentElement === lp ? ap.appendChild(t) : lp.appendChild(t); checkAnagram(); };
+                t.onclick = () => { if(ap.classList.contains('correct')) return; t.parentElement === lp ? ap.appendChild(t) : lp.appendChild(t); checkAnagram(); };
                 lp.appendChild(t);
             });
         }
@@ -291,9 +286,8 @@
                 else ap.classList.add('wrong');
             }
         }
-        function clearAnagram() { playClickSound(); const lp = document.getElementById('letter-pool'), ap = document.getElementById('answer-pool'); ap.classList.remove('wrong'); while(ap.firstChild) lp.appendChild(ap.firstChild); }
-        function solveAnagram() { playClickSound(); const ap = document.getElementById('answer-pool'), lp = document.getElementById('letter-pool'); ap.innerHTML = ''; lp.innerHTML = ''; curWord.de.split('').forEach(char => { const t = document.createElement('div'); t.className = 'letter-tile'; t.innerText = char; t.dataset.char = char; ap.appendChild(t); }); checkAnagram(); }
-
+        function clearAnagram() { const lp = document.getElementById('letter-pool'), ap = document.getElementById('answer-pool'); ap.classList.remove('wrong'); while(ap.firstChild) lp.appendChild(ap.firstChild); }
+        function solveAnagram() { const ap = document.getElementById('answer-pool'), lp = document.getElementById('letter-pool'); ap.innerHTML = ''; lp.innerHTML = ''; curWord.de.split('').forEach(char => { const t = document.createElement('div'); t.className = 'letter-tile'; t.innerText = char; t.dataset.char = char; ap.appendChild(t); }); checkAnagram(); }
         function runHangman() {
             curWord = currentWordQueue[currentIndex]; hangmanErrors = 0; hangmanGuessed = [];
             document.getElementById('hangman-hint-ru').innerText = `Перевод: ${curWord.ru}`;
@@ -309,15 +303,13 @@
             const kb = document.getElementById('hangman-keyboard'); kb.innerHTML = '';
             "abcdefghijklmnopqrstuvwxyzäöüß".split("").forEach(l => {
                 const b = document.createElement('button'); b.className = 'key'; b.innerText = l;
-                b.onclick = () => { playClickSound(); b.disabled = true; if (curWord.de.toLowerCase().includes(l)) { hangmanGuessed.push(l); renderHangmanWord(); } else { hangmanErrors++; document.getElementById('hangman-visual').innerText = hangmanStages[Math.min(hangmanErrors, 6)]; if(hangmanErrors >= 6) { alert('Слово: ' + curWord.de); skipWord(); } } };
+                b.onclick = () => { b.disabled = true; if (curWord.de.toLowerCase().includes(l)) { hangmanGuessed.push(l); renderHangmanWord(); } else { hangmanErrors++; document.getElementById('hangman-visual').innerText = hangmanStages[Math.min(hangmanErrors, 6)]; if(hangmanErrors >= 6) { alert('Слово: ' + curWord.de); skipWord(); } } };
                 kb.appendChild(b);
             });
         }
-
         function goHome() { location.reload(); }
         function backToModes() { document.getElementById('game-container').classList.add('hidden'); document.getElementById('mode-screen').classList.remove('hidden'); }
         function speakText() { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(document.getElementById('flash-text-de').innerText); u.lang = 'de-DE'; window.speechSynthesis.speak(u); }
-
         init();
     </script>
 </body>
