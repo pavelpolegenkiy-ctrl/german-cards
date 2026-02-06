@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deutsch Тренажёр v1.1.0</title>
+    <title>Deutsch Тренажёр v1.2.0</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -97,7 +97,10 @@
                 <button class="menu-btn" onclick="startGame('match')">🎮 Найди пару</button>
                 <button class="menu-btn" onclick="startGame('anagram')">🔠 Анаграммы</button>
                 <button class="menu-btn" onclick="startGame('hangman')">😵 Виселица</button>
+                
+                <button class="menu-btn" style="background:#4b13d3; border-color:#310c8f;" onclick="setCustomWord()">✍️ Загадать слово</button>
                 <button class="menu-btn" style="background:#d32f2f; border-color:#b71c1c;" onclick="loadRemoteWord()">📡 Слово от друга</button>
+                
                 <button class="back-btn" onclick="goHome()">🏠 К списку тем</button>
             </div>
             <div class="words-column" id="preview-right"></div>
@@ -186,13 +189,24 @@
                 const [de, ru] = text.trim().split(':');
                 if (de && ru) {
                     currentWordQueue = [{ id: 9999, de: de.trim(), ru: ru.trim() }];
-                    currentIndex = 0;
-                    currentMode = 'hangman';
+                    currentIndex = 0; currentMode = 'hangman';
                     document.getElementById('mode-screen').classList.add('hidden');
                     document.getElementById('game-container').classList.remove('hidden');
                     updateUI();
                 }
-            } catch (e) { alert('Ошибка: Файл на GitHub не найден или неверный формат.'); }
+            } catch (e) { alert('Ошибка загрузки с GitHub.'); }
+        }
+
+        function setCustomWord() {
+            const de = prompt("Введите немецкое слово:");
+            if (!de) return;
+            const ru = prompt("Введите перевод:");
+            if (!ru) return;
+            currentWordQueue = [{ id: Date.now(), de: de.trim(), ru: ru.trim() }];
+            currentIndex = 0; currentMode = 'hangman';
+            document.getElementById('mode-screen').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+            updateUI();
         }
 
         function init() { renderMenu('left-menu', wordsLeft); renderMenu('topic-screen', wordCollections); renderMenu('right-menu', wordsRight); }
